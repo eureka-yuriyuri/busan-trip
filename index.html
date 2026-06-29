@@ -6,7 +6,6 @@
 <title>BUSAN 0709–0713</title>
 <link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Noto+Serif+TC:wght@300;400;500&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
 <style>
-/* ── CSS Variables ── */
 :root {
   --paper:      #f3ebe0;
   --paper-mid:  #e5d9c5;
@@ -20,27 +19,16 @@
   --tl-time-w:  44px;
   --tl-gap:     8px;
   --tl-node-w:  14px;
-  /* line center = pad + time + gap + half-node = 20+44+8+7 = 79px */
   --tl-line-x:  79px;
 }
-
 * { margin:0; padding:0; box-sizing:border-box; }
-
-/*
-  KEY (from Erik Ritter's technique):
-  body { position: relative } → lets .paper-overlay use position:absolute
-  to cover the FULL page height, not just the viewport.
-  mix-blend-mode: multiply → texture blends INTO the content like real print.
-*/
 body {
   background: #111;
   min-height: 100vh;
   font-family: 'Courier Prime', 'Courier New', monospace;
   color: var(--ink);
-  position: relative; /* ← CRITICAL: makes abs overlay cover full page */
+  position: relative;
 }
-
-/* ── App shell ── */
 .app {
   max-width: 430px;
   margin: 0 auto;
@@ -49,528 +37,90 @@ body {
   position: relative;
   overflow-x: hidden;
 }
-
-/*
-  ── PAPER OVERLAY (full-page grain) ──
-  position: absolute (not fixed!) → scrolls WITH the content,
-  so the texture lives ON the paper, not floating above the screen.
-  Two grain layers: coarse warm grain + fine tight grain.
-  mix-blend-mode: multiply → dark specks of grain darken the paper below,
-  white areas pass through = authentic aged-paper print effect.
-*/
 .paper-overlay {
   position: absolute;
   inset: 0;
   z-index: 500;
-  pointer-events: none; /* clicks pass through to page content */
+  pointer-events: none;
   mix-blend-mode: multiply;
-  /* Layer 1: coarse warm grain (300×300, warm-tinted) */
-  /* Layer 2: fine tight grain (180×180, cooler, subtle) */
   background-image:
     url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='c'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.60' numOctaves='4' seed='8' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncR type='linear' slope='0.22' intercept='0.80'/%3E%3CfeFuncG type='linear' slope='0.18' intercept='0.78'/%3E%3CfeFuncB type='linear' slope='0.13' intercept='0.73'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23c)'/%3E%3C/svg%3E"),
     url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.92' numOctaves='3' seed='14' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncR type='linear' slope='0.10' intercept='0.90'/%3E%3CfeFuncG type='linear' slope='0.09' intercept='0.89'/%3E%3CfeFuncB type='linear' slope='0.08' intercept='0.88'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23f)'/%3E%3C/svg%3E");
   background-size: 300px 300px, 180px 180px;
   background-repeat: repeat;
 }
-
-/* ── HEADER ── */
-.header {
-  padding: 28px 20px 0;
-}
-.header-eyebrow {
-  font-family: 'Special Elite', serif;
-  font-size: 10px;
-  letter-spacing: 0.3em;
-  text-transform: uppercase;
-  color: var(--ink-faint);
-  margin-bottom: 8px;
-}
-.header-title {
-  font-family: 'Special Elite', serif;
-  font-size: 44px;
-  line-height: 1;
-  letter-spacing: -0.01em;
-  color: var(--ink);
-}
-.header-subtitle {
-  font-family: 'Special Elite', serif;
-  font-size: 12px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--ink-faint);
-  margin-top: 4px;
-  margin-bottom: 16px;
-}
-.header-divider {
-  border: none;
-  border-top: 1px solid var(--ink);
-  margin-bottom: 0;
-}
-.header-meta {
-  display: flex;
-  justify-content: space-between;
-  padding: 8px 0 14px;
-  border-bottom: 1px solid var(--ink);
-}
-.header-meta span {
-  font-family: 'Special Elite', serif;
-  font-size: 9px;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  color: var(--ink-light);
-}
-
-/* ── NAV ── */
-.nav {
-  display: flex;
-  border-bottom: 1px solid var(--ink);
-  background: var(--paper);
-  position: sticky;
-  top: 0;
-  z-index: 80; /* paper-overlay (z-index:500) paints above, grain covers nav = printed-on-paper look */
-}
-.nav-btn {
-  flex: 1;
-  padding: 11px 6px;
-  font-family: 'Special Elite', serif;
-  font-size: 10px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  color: var(--ink-faint);
-  border-bottom: 2px solid transparent;
-  margin-bottom: -1px;
-  transition: color 0.15s, border-color 0.15s;
-}
-.nav-btn.active {
-  color: var(--ink);
-  border-bottom-color: var(--ink);
-}
-
-/* ── VIEWS ── */
+.header { padding: 28px 20px 0; }
+.header-eyebrow { font-family: 'Special Elite', serif; font-size: 10px; letter-spacing: 0.3em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 8px; }
+.header-title { font-family: 'Special Elite', serif; font-size: 44px; line-height: 1; letter-spacing: -0.01em; color: var(--ink); }
+.header-subtitle { font-family: 'Special Elite', serif; font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink-faint); margin-top: 4px; margin-bottom: 16px; }
+.header-divider { border: none; border-top: 1px solid var(--ink); margin-bottom: 0; }
+.header-meta { display: flex; justify-content: space-between; padding: 8px 0 14px; border-bottom: 1px solid var(--ink); }
+.header-meta span { font-family: 'Special Elite', serif; font-size: 9px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--ink-light); }
+.nav { display: flex; border-bottom: 1px solid var(--ink); background: var(--paper); position: sticky; top: 0; z-index: 80; }
+.nav-btn { flex: 1; padding: 11px 6px; font-family: 'Special Elite', serif; font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; border: none; background: transparent; cursor: pointer; color: var(--ink-faint); border-bottom: 2px solid transparent; margin-bottom: -1px; transition: color 0.15s, border-color 0.15s; }
+.nav-btn.active { color: var(--ink); border-bottom-color: var(--ink); }
 .view { display: none; }
 .view.active { display: block; }
-
-/* ═══════════════════════════════
-   TIMELINE VIEW
-═══════════════════════════════ */
-.day-tabs-wrap {
-  padding: 14px 20px 0;
-  background: var(--paper);
-  position: sticky;
-  top: 36px;
-  z-index: 70;
-  border-bottom: 1px solid var(--ink-ghost);
-}
-.day-tabs {
-  display: flex;
-  gap: 0;
-  overflow-x: auto;
-  scrollbar-width: none;
-  padding-bottom: 0;
-}
+.day-tabs-wrap { padding: 14px 20px 0; background: var(--paper); position: sticky; top: 36px; z-index: 70; border-bottom: 1px solid var(--ink-ghost); }
+.day-tabs { display: flex; gap: 0; overflow-x: auto; scrollbar-width: none; padding-bottom: 0; }
 .day-tabs::-webkit-scrollbar { display: none; }
-.day-tab {
-  flex-shrink: 0;
-  padding: 6px 13px;
-  font-family: 'Special Elite', serif;
-  font-size: 9px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  border: 1px solid var(--ink-ghost);
-  background: transparent;
-  cursor: pointer;
-  color: var(--ink-faint);
-  margin-right: -1px;
-  transition: all 0.15s;
-}
-.day-tab.active {
-  background: var(--ink);
-  color: var(--paper);
-  border-color: var(--ink);
-  z-index: 1;
-  position: relative;
-}
-
+.day-tab { flex-shrink: 0; padding: 6px 13px; font-family: 'Special Elite', serif; font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; border: 1px solid var(--ink-ghost); background: transparent; cursor: pointer; color: var(--ink-faint); margin-right: -1px; transition: all 0.15s; }
+.day-tab.active { background: var(--ink); color: var(--paper); border-color: var(--ink); z-index: 1; position: relative; }
 .day-content { display: none; }
 .day-content.active { display: block; }
-
-/* Day banner */
-.day-banner {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  background: var(--ink);
-  color: var(--paper);
-  padding: 14px 20px 12px;
-  margin-bottom: 0;
-}
-.day-banner-num {
-  font-family: 'Special Elite', serif;
-  font-size: 48px;
-  line-height: 1;
-  letter-spacing: -0.03em;
-  opacity: 0.9;
-}
+.day-banner { display: flex; justify-content: space-between; align-items: flex-end; background: var(--ink); color: var(--paper); padding: 14px 20px 12px; margin-bottom: 0; }
+.day-banner-num { font-family: 'Special Elite', serif; font-size: 48px; line-height: 1; letter-spacing: -0.03em; opacity: 0.9; }
 .day-banner-info { text-align: right; }
-.day-banner-date {
-  font-family: 'Special Elite', serif;
-  font-size: 9px;
-  letter-spacing: 0.2em;
-  opacity: 0.55;
-  margin-bottom: 2px;
-}
-.day-banner-name {
-  font-family: 'Special Elite', serif;
-  font-size: 16px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-}
-
-/* ── TIMELINE ── */
-/*
-  Structure per row:
-  [tl-time: 44px] [gap: 8px] [tl-node: 14px] [gap: 8px] [tl-card: flex-1]
-  Vertical line left = tl-pad-l(20) + tl-time-w(44) + tl-gap(8) + tl-node-w/2(7) = 79px
-*/
-.timeline {
-  position: relative;
-  padding: 18px var(--tl-pad-l) 28px;
-}
-.timeline::before {
-  content: '';
-  position: absolute;
-  left: var(--tl-line-x);
-  top: 26px;
-  bottom: 36px;
-  width: 1px;
-  background: linear-gradient(
-    to bottom,
-    transparent 0%,
-    var(--ink-ghost) 6%,
-    var(--ink-ghost) 94%,
-    transparent 100%
-  );
-}
-
-.tl-row {
-  display: flex;
-  align-items: flex-start;
-  margin-bottom: 6px;
-  position: relative;
-}
-
-/* Time label */
-.tl-time {
-  width: var(--tl-time-w);
-  flex-shrink: 0;
-  font-family: 'Special Elite', serif;
-  font-size: 9px;
-  color: var(--ink-faint);
-  text-align: right;
-  padding-top: 12px;
-  line-height: 1;
-  letter-spacing: 0.04em;
-}
-
-/* Dot column — centered on the line */
-.tl-node {
-  width: var(--tl-node-w);
-  flex-shrink: 0;
-  margin: 0 var(--tl-gap);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding-top: 14px;
-}
-.tl-dot {
-  width: 8px; height: 8px;
-  border-radius: 50%;
-  border: 1.5px solid var(--ink);
-  background: var(--paper);
-  flex-shrink: 0;
-  position: relative;
-  z-index: 2;
-}
+.day-banner-date { font-family: 'Special Elite', serif; font-size: 9px; letter-spacing: 0.2em; opacity: 0.55; margin-bottom: 2px; }
+.day-banner-name { font-family: 'Special Elite', serif; font-size: 16px; letter-spacing: 0.1em; text-transform: uppercase; }
+.timeline { position: relative; padding: 18px var(--tl-pad-l) 28px; }
+.timeline::before { content: ''; position: absolute; left: var(--tl-line-x); top: 26px; bottom: 36px; width: 1px; background: linear-gradient(to bottom, transparent 0%, var(--ink-ghost) 6%, var(--ink-ghost) 94%, transparent 100%); }
+.tl-row { display: flex; align-items: flex-start; margin-bottom: 6px; position: relative; }
+.tl-time { width: var(--tl-time-w); flex-shrink: 0; font-family: 'Special Elite', serif; font-size: 9px; color: var(--ink-faint); text-align: right; padding-top: 12px; line-height: 1; letter-spacing: 0.04em; }
+.tl-node { width: var(--tl-node-w); flex-shrink: 0; margin: 0 var(--tl-gap); display: flex; flex-direction: column; align-items: center; padding-top: 14px; }
+.tl-dot { width: 8px; height: 8px; border-radius: 50%; border: 1.5px solid var(--ink); background: var(--paper); flex-shrink: 0; position: relative; z-index: 2; }
 .tl-dot.solid  { background: var(--ink); }
 .tl-dot.flight { background: var(--red); border-color: var(--red); }
 .tl-dot.reserved { background: var(--ink); border-color: var(--ink); }
-
-/* Receipt card */
-.tl-card {
-  flex: 1;
-  border: 1px solid var(--ink);
-  background: var(--paper);
-  position: relative;
-  margin-bottom: 8px;
-}
-/* Perforated top edge */
-.tl-card::before {
-  content: '';
-  position: absolute;
-  top: -4px; left: 6px; right: 6px; height: 4px;
-  background: repeating-linear-gradient(
-    90deg,
-    var(--paper) 0, var(--paper) 5px,
-    transparent 5px, transparent 7px
-  );
-}
-.card-head {
-  padding: 8px 10px 7px;
-  border-bottom: 1px dashed var(--ink-ghost);
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 6px;
-}
-.card-title {
-  font-family: 'Special Elite', serif;
-  font-size: 11.5px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  line-height: 1.4;
-  color: var(--ink);
-  flex: 1;
-}
-.card-tag {
-  font-family: 'Special Elite', serif;
-  font-size: 7.5px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--ink-faint);
-  background: var(--paper-mid);
-  padding: 2px 5px;
-  white-space: nowrap;
-  flex-shrink: 0;
-  border: 1px solid var(--ink-ghost);
-}
-.card-tag.reserved {
-  background: var(--ink);
-  color: var(--paper);
-  border-color: var(--ink);
-}
-.card-body {
-  padding: 6px 10px 9px;
-}
-.card-line {
-  font-size: 9.5px;
-  letter-spacing: 0.06em;
-  color: var(--ink-light);
-  line-height: 1.7;
-}
-.card-kor {
-  font-size: 9px;
-  color: var(--ink-faint);
-  margin-top: 1px;
-  letter-spacing: 0.03em;
-}
-.card-foot {
-  border-top: 1px dashed var(--ink-ghost);
-  padding: 5px 10px;
-  display: flex;
-  justify-content: space-between;
-  font-family: 'Special Elite', serif;
-  font-size: 8px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--ink-ghost);
-}
-
-/* Transport row */
-.tl-transport {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 0 12px;
-}
-.tl-transport-line {
-  flex: 1;
-  height: 1px;
-  background: repeating-linear-gradient(
-    90deg,
-    var(--ink-ghost) 0, var(--ink-ghost) 4px,
-    transparent 4px, transparent 7px
-  );
-}
-.tl-transport-label {
-  font-family: 'Special Elite', serif;
-  font-size: 8px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--ink-faint);
-  white-space: nowrap;
-}
-
-/* ═══════════════════════════════
-   SPOTS LIST VIEW
-═══════════════════════════════ */
-.spots-day {
-  padding: 0 20px 4px;
-  margin-top: 20px;
-}
-.spots-day-label {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  border-top: 1px solid var(--ink);
-  padding: 10px 0 12px;
-}
-.spots-day-label .d-left {
-  font-family: 'Special Elite', serif;
-  font-size: 9px;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  color: var(--ink-faint);
-}
-.spots-day-label .d-right {
-  font-family: 'Special Elite', serif;
-  font-size: 9px;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  color: var(--ink-ghost);
-}
-
-/* Spot card */
-.spot {
-  border: 1px solid var(--ink);
-  margin-bottom: 8px;
-  background: var(--paper);
-  position: relative;
-  overflow: hidden;
-}
-/* Torn bottom edge */
-.spot::after {
-  content: '';
-  position: absolute;
-  bottom: 0; left: 0; right: 0; height: 3px;
-  background: repeating-linear-gradient(
-    90deg,
-    var(--paper-mid) 0, var(--paper-mid) 5px,
-    transparent 5px, transparent 8px
-  );
-}
-.spot-id {
-  position: absolute;
-  top: 10px; right: 10px;
-  font-family: 'Special Elite', serif;
-  font-size: 8px;
-  color: var(--ink-ghost);
-  letter-spacing: 0.1em;
-}
-.spot-head {
-  padding: 11px 36px 10px 12px;
-  border-bottom: 1px dashed var(--ink-ghost);
-}
-.spot-cat {
-  font-family: 'Special Elite', serif;
-  font-size: 8px;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--ink-faint);
-  margin-bottom: 5px;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
-.spot-cat .badge {
-  background: var(--ink);
-  color: var(--paper);
-  padding: 1px 5px;
-  font-size: 7.5px;
-}
-.spot-name {
-  font-family: 'Special Elite', serif;
-  font-size: 14px;
-  letter-spacing: 0.02em;
-  line-height: 1.3;
-  color: var(--ink);
-}
-.spot-kor {
-  font-size: 10px;
-  color: var(--ink-faint);
-  margin-top: 3px;
-  letter-spacing: 0.04em;
-}
-.spot-body {
-  padding: 9px 12px 14px;
-}
-.spot-row {
-  display: flex;
-  gap: 6px;
-  margin-bottom: 5px;
-  align-items: baseline;
-}
-.spot-label {
-  font-family: 'Special Elite', serif;
-  font-size: 7.5px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--ink-ghost);
-  flex-shrink: 0;
-  width: 40px;
-}
-.spot-val {
-  font-size: 9.5px;
-  color: var(--ink-light);
-  letter-spacing: 0.04em;
-  line-height: 1.6;
-  flex: 1;
-}
-.spot-val .kor {
-  color: var(--ink-faint);
-  font-size: 9px;
-}
-.spot-desc {
-  margin-top: 6px;
-  padding-top: 6px;
-  border-top: 1px dashed var(--ink-ghost);
-  font-size: 9px;
-  color: var(--ink-faint);
-  line-height: 1.7;
-  letter-spacing: 0.04em;
-}
-.spot-time-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-top: 1px dashed var(--ink-ghost);
-  padding: 5px 12px 8px;
-}
-.spot-time-label {
-  font-family: 'Special Elite', serif;
-  font-size: 7.5px;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  color: var(--ink-ghost);
-}
-.spot-time-val {
-  font-family: 'Special Elite', serif;
-  font-size: 9px;
-  color: var(--ink-light);
-  letter-spacing: 0.08em;
-}
-
-/* ── Footer tear ── */
-.tear {
-  text-align: center;
-  padding: 20px 20px 40px;
-  border-top: 1px dashed var(--ink-ghost);
-  margin: 4px 20px 0;
-  font-family: 'Special Elite', serif;
-  font-size: 8px;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  color: var(--ink-ghost);
-}
+.tl-card { flex: 1; border: 1px solid var(--ink); background: var(--paper); position: relative; margin-bottom: 8px; }
+.tl-card::before { content: ''; position: absolute; top: -4px; left: 6px; right: 6px; height: 4px; background: repeating-linear-gradient(90deg, var(--paper) 0, var(--paper) 5px, transparent 5px, transparent 7px); }
+.card-head { padding: 8px 10px 7px; border-bottom: 1px dashed var(--ink-ghost); display: flex; justify-content: space-between; align-items: flex-start; gap: 6px; }
+.card-title { font-family: 'Special Elite', serif; font-size: 11.5px; font-weight: 700; letter-spacing: 0.04em; line-height: 1.4; color: var(--ink); flex: 1; }
+.card-tag { font-family: 'Special Elite', serif; font-size: 7.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-faint); background: var(--paper-mid); padding: 2px 5px; white-space: nowrap; flex-shrink: 0; border: 1px solid var(--ink-ghost); }
+.card-tag.reserved { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.card-body { padding: 6px 10px 9px; }
+.card-line { font-size: 9.5px; letter-spacing: 0.06em; color: var(--ink-light); line-height: 1.7; }
+.card-kor { font-size: 9px; color: var(--ink-faint); margin-top: 1px; letter-spacing: 0.03em; }
+.card-foot { border-top: 1px dashed var(--ink-ghost); padding: 5px 10px; display: flex; justify-content: space-between; font-family: 'Special Elite', serif; font-size: 8px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-ghost); }
+.tl-transport { flex: 1; display: flex; align-items: center; gap: 6px; padding: 6px 0 12px; }
+.tl-transport-line { flex: 1; height: 1px; background: repeating-linear-gradient(90deg, var(--ink-ghost) 0, var(--ink-ghost) 4px, transparent 4px, transparent 7px); }
+.tl-transport-label { font-family: 'Special Elite', serif; font-size: 8px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-faint); white-space: nowrap; }
+.spots-day { padding: 0 20px 4px; margin-top: 20px; }
+.spots-day-label { display: flex; justify-content: space-between; align-items: baseline; border-top: 1px solid var(--ink); padding: 10px 0 12px; }
+.spots-day-label .d-left { font-family: 'Special Elite', serif; font-size: 9px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--ink-faint); }
+.spots-day-label .d-right { font-family: 'Special Elite', serif; font-size: 9px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--ink-ghost); }
+.spot { border: 1px solid var(--ink); margin-bottom: 8px; background: var(--paper); position: relative; overflow: hidden; }
+.spot::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 3px; background: repeating-linear-gradient(90deg, var(--paper-mid) 0, var(--paper-mid) 5px, transparent 5px, transparent 8px); }
+.spot-id { position: absolute; top: 10px; right: 10px; font-family: 'Special Elite', serif; font-size: 8px; color: var(--ink-ghost); letter-spacing: 0.1em; }
+.spot-head { padding: 11px 36px 10px 12px; border-bottom: 1px dashed var(--ink-ghost); }
+.spot-cat { font-family: 'Special Elite', serif; font-size: 8px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 5px; display: flex; align-items: center; gap: 5px; }
+.spot-cat .badge { background: var(--ink); color: var(--paper); padding: 1px 5px; font-size: 7.5px; }
+.spot-name { font-family: 'Special Elite', serif; font-size: 14px; letter-spacing: 0.02em; line-height: 1.3; color: var(--ink); }
+.spot-kor { font-size: 10px; color: var(--ink-faint); margin-top: 3px; letter-spacing: 0.04em; }
+.spot-body { padding: 9px 12px 14px; }
+.spot-row { display: flex; gap: 6px; margin-bottom: 5px; align-items: baseline; }
+.spot-label { font-family: 'Special Elite', serif; font-size: 7.5px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink-ghost); flex-shrink: 0; width: 40px; }
+.spot-val { font-size: 9.5px; color: var(--ink-light); letter-spacing: 0.04em; line-height: 1.6; flex: 1; }
+.spot-val .kor { color: var(--ink-faint); font-size: 9px; }
+.spot-desc { margin-top: 6px; padding-top: 6px; border-top: 1px dashed var(--ink-ghost); font-size: 9px; color: var(--ink-faint); line-height: 1.7; letter-spacing: 0.04em; }
+.spot-time-row { display: flex; justify-content: space-between; align-items: center; border-top: 1px dashed var(--ink-ghost); padding: 5px 12px 8px; }
+.spot-time-label { font-family: 'Special Elite', serif; font-size: 7.5px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--ink-ghost); }
+.spot-time-val { font-family: 'Special Elite', serif; font-size: 9px; color: var(--ink-light); letter-spacing: 0.08em; }
+.tear { text-align: center; padding: 20px 20px 40px; border-top: 1px dashed var(--ink-ghost); margin: 4px 20px 0; font-family: 'Special Elite', serif; font-size: 8px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--ink-ghost); }
 </style>
 </head>
 <body>
 <div class="app">
-
-<!-- ── HEADER ── -->
 <header class="header">
   <div class="header-eyebrow">[ TRAVEL RECEIPT · 釜山行程 ]</div>
   <div class="header-title">BUSAN®</div>
@@ -582,16 +132,10 @@ body {
     <span>3 Pax</span>
   </div>
 </header>
-
-<!-- ── NAV ── -->
 <nav class="nav">
   <button class="nav-btn active" onclick="switchView('timeline',this)">時程表</button>
   <button class="nav-btn" onclick="switchView('spots',this)">景點清單</button>
 </nav>
-
-<!-- ══════════════════════════════════
-     TIMELINE VIEW
-══════════════════════════════════ -->
 <div class="view active" id="view-timeline">
   <div class="day-tabs-wrap">
     <div class="day-tabs">
@@ -602,843 +146,133 @@ body {
       <button class="day-tab" onclick="switchDay(4,this)">D5&nbsp;7/13</button>
     </div>
   </div>
-
-  <!-- ─── DAY 1 ─── -->
+  <!-- DAY 1 -->
   <div class="day-content active" id="day-0">
-    <div class="day-banner">
-      <div class="day-banner-num">01</div>
-      <div class="day-banner-info">
-        <div class="day-banner-date">2026 · July · 9th</div>
-        <div class="day-banner-name">Thursday</div>
-      </div>
-    </div>
+    <div class="day-banner"><div class="day-banner-num">01</div><div class="day-banner-info"><div class="day-banner-date">2026 · July · 9th</div><div class="day-banner-name">Thursday</div></div></div>
     <div class="timeline">
-      <div class="tl-row">
-        <div class="tl-time">10:30</div>
-        <div class="tl-node"><div class="tl-dot flight"></div></div>
-        <div class="tl-card">
-          <div class="card-head">
-            <div class="card-title">Eureka + 花花 一起搭飛機出發 ✈️</div>
-            <div class="card-tag">Depart</div>
-          </div>
-        </div>
-      </div>
-      <div class="tl-row">
-        <div class="tl-time">14:00</div>
-        <div class="tl-node"><div class="tl-dot solid"></div></div>
-        <div class="tl-card">
-          <div class="card-head">
-            <div class="card-title">一起落地 · 金海機場 🛬</div>
-            <div class="card-tag">Arrive</div>
-          </div>
-          <div class="card-body">
-            <div class="card-line">尋找快速通關辦理地方</div>
-          </div>
-        </div>
-      </div>
-      <div class="tl-row">
-        <div class="tl-time">16:30</div>
-        <div class="tl-node"><div class="tl-dot solid"></div></div>
-        <div class="tl-card">
-          <div class="card-head">
-            <div class="card-title">飯店 Check In 🏨</div>
-            <div class="card-tag">Hotel</div>
-          </div>
-          <div class="card-body">
-            <div class="card-line">出發飯店辦理入住</div>
-          </div>
-          <div class="card-foot"><span>Transport</span><span>機場站 → 西面站</span></div>
-        </div>
-      </div>
-      <div class="tl-row">
-        <div class="tl-time">18:00</div>
-        <div class="tl-node"><div class="tl-dot solid"></div></div>
-        <div class="tl-card">
-          <div class="card-head">
-            <div class="card-title">🍜 晚餐 · 春夏秋冬冷麵</div>
-            <div class="card-tag">Dinner</div>
-          </div>
-          <div class="card-body">
-            <div class="card-line">춘하추동밀면 서면본점</div>
-            <div class="card-kor">西面文化路 48-1 · 西面站9號出口</div>
-          </div>
-          <div class="card-foot"><span>Noodle</span><span>서면 西面</span></div>
-        </div>
-      </div>
-      <div class="tl-row">
-        <div class="tl-time">19:00</div>
-        <div class="tl-node"><div class="tl-dot"></div></div>
-        <div class="tl-card">
-          <div class="card-head">
-            <div class="card-title">🛍️ 逛逛西面商圈</div>
-            <div class="card-tag">Shopping</div>
-          </div>
-          <div class="card-body">
-            <div class="card-line">다이소· 西面地下商圈</div>
-          </div>
-          <div class="card-foot"><span>Shop</span><span>서면 西面</span></div>
-        </div>
-      </div>
+      <div class="tl-row"><div class="tl-time">10:30</div><div class="tl-node"><div class="tl-dot flight"></div></div><div class="tl-card"><div class="card-head"><div class="card-title">Eureka + 花花 一起搭飛機出發 ✈️</div><div class="card-tag">Depart</div></div></div></div>
+      <div class="tl-row"><div class="tl-time">14:00</div><div class="tl-node"><div class="tl-dot solid"></div></div><div class="tl-card"><div class="card-head"><div class="card-title">一起落地 · 金海機場 🛬</div><div class="card-tag">Arrive</div></div><div class="card-body"><div class="card-line">尋找快速通關辦理地方</div></div></div></div>
+      <div class="tl-row"><div class="tl-time">16:30</div><div class="tl-node"><div class="tl-dot solid"></div></div><div class="tl-card"><div class="card-head"><div class="card-title">飯店 Check In 🏨</div><div class="card-tag">Hotel</div></div><div class="card-body"><div class="card-line">出發飯店辦理入住</div></div><div class="card-foot"><span>Transport</span><span>機場站 → 西面站</span></div></div></div>
+      <div class="tl-row"><div class="tl-time">18:00</div><div class="tl-node"><div class="tl-dot solid"></div></div><div class="tl-card"><div class="card-head"><div class="card-title">🍜 晚餐 · 春夏秋冬冷麵</div><div class="card-tag">Dinner</div></div><div class="card-body"><div class="card-line">춘하추동밀면 서면본점</div><div class="card-kor">西面文化路 48-1 · 西面站9號出口</div></div><div class="card-foot"><span>Noodle</span><span>서면 西面</span></div></div></div>
+      <div class="tl-row"><div class="tl-time">19:00</div><div class="tl-node"><div class="tl-dot"></div></div><div class="tl-card"><div class="card-head"><div class="card-title">🛍️ 逛逛西面商圈</div><div class="card-tag">Shopping</div></div><div class="card-body"><div class="card-line">다이소· 西面地下商圈</div></div><div class="card-foot"><span>Shop</span><span>서면 西面</span></div></div></div>
     </div>
   </div><!-- /day-0 -->
-
-  <!-- ─── DAY 2 ─── -->
+  <!-- DAY 2 — updated: dinner changed to 옛골 서면 at 20:30 -->
   <div class="day-content" id="day-1">
-    <div class="day-banner">
-      <div class="day-banner-num">02</div>
-      <div class="day-banner-info">
-        <div class="day-banner-date">2026 · July · 10th</div>
-        <div class="day-banner-name">Friday</div>
-      </div>
-    </div>
+    <div class="day-banner"><div class="day-banner-num">02</div><div class="day-banner-info"><div class="day-banner-date">2026 · July · 10th</div><div class="day-banner-name">Friday</div></div></div>
     <div class="timeline">
+      <div class="tl-row"><div class="tl-time">8:30</div><div class="tl-node"><div class="tl-dot solid"></div></div><div class="tl-card"><div class="card-head"><div class="card-title">🍙 早餐</div><div class="card-tag">Breakfast</div></div><div class="card-body"><div class="card-line">김밥천국 / 버거킹</div></div></div></div>
+      <div class="tl-row"><div class="tl-time">9:00</div><div class="tl-node"><div class="tl-dot"></div></div><div class="tl-transport"><div class="tl-transport-line"></div><div class="tl-transport-label">🚃 最晚出發 · 前往機張</div><div class="tl-transport-line"></div></div></div>
+      <div class="tl-row"><div class="tl-time">11:00</div><div class="tl-node"><div class="tl-dot solid"></div></div><div class="tl-card"><div class="card-head"><div class="card-title">⛷️ Skyline Luge Busan</div><div class="card-tag">Activity</div></div><div class="card-body"><div class="card-line">루지 3회권 + 스카이라이드 · 36,000/人</div><div class="card-kor">體驗2次約40-50min；含高空滑索需1.5-2hr</div></div><div class="card-foot"><span>Outdoor</span><span>기장 機張 오시리아역</span></div></div></div>
+      <div class="tl-row"><div class="tl-time">13:30</div><div class="tl-node"><div class="tl-dot solid"></div></div><div class="tl-card"><div class="card-head"><div class="card-title">🍜 午餐 · 樂天 Outlet</div><div class="card-tag">Lunch</div></div><div class="card-body"><div class="card-line">롯데 아울렛 동부산점 3F</div></div></div></div>
+      <div class="tl-row"><div class="tl-time">15:30</div><div class="tl-node"><div class="tl-dot"></div></div><div class="tl-transport"><div class="tl-transport-line"></div><div class="tl-transport-label">🚕 Uber 約30min → 青沙浦</div><div class="tl-transport-line"></div></div></div>
+      <div class="tl-row"><div class="tl-time">16:30</div><div class="tl-node"><div class="tl-dot solid"></div></div><div class="tl-card"><div class="card-head"><div class="card-title">📸 青沙浦海岸列車平交道</div><div class="card-tag">Photo Spot</div></div><div class="card-body"><div class="card-line">出站往斜坡步行·復古列車+無敵海景</div><div class="card-kor">청사포 공영주차장 전기차충전소</div></div><div class="card-foot"><span>韓版鎌倉</span><span>청사포 青沙浦</span></div></div></div>
+      <div class="tl-row"><div class="tl-time">18:00</div><div class="tl-node"><div class="tl-dot solid"></div></div><div class="tl-card"><div class="card-head"><div class="card-title">☕ 리베르타 청사포점</div><div class="card-tag">Café</div></div><div class="card-body"><div class="card-line">海景咖啡廳·甜點也超人氣</div><div class="card-kor">청사포로 137 · 萇山站步行</div></div><div class="card-foot"><span>Coffee</span><span>청사포 青沙浦</span></div></div></div>
       <div class="tl-row">
-        <div class="tl-time">8:30</div>
+        <div class="tl-time">20:30</div>
         <div class="tl-node"><div class="tl-dot solid"></div></div>
         <div class="tl-card">
           <div class="card-head">
-            <div class="card-title">🍙 早餐</div>
-            <div class="card-tag">Breakfast</div>
-          </div>
-          <div class="card-body">
-            <div class="card-line">김밥천국 / 버거킹</div>
-          </div>
-        </div>
-      </div>
-      <div class="tl-row">
-        <div class="tl-time">9:00</div>
-        <div class="tl-node"><div class="tl-dot"></div></div>
-        <div class="tl-transport">
-          <div class="tl-transport-line"></div>
-          <div class="tl-transport-label">🚃 最晚出發 · 前往機張</div>
-          <div class="tl-transport-line"></div>
-        </div>
-      </div>
-      <div class="tl-row">
-        <div class="tl-time">11:00</div>
-        <div class="tl-node"><div class="tl-dot solid"></div></div>
-        <div class="tl-card">
-          <div class="card-head">
-            <div class="card-title">⛷️ Skyline Luge Busan</div>
-            <div class="card-tag">Activity</div>
-          </div>
-          <div class="card-body">
-            <div class="card-line">루지 3회권 + 스카이라이드 · 36,000/人</div>
-            <div class="card-kor">體驗2次約40-50min；含高空滑索需1.5-2hr</div>
-          </div>
-          <div class="card-foot"><span>Outdoor</span><span>기장 機張 오시리아역</span></div>
-        </div>
-      </div>
-      <div class="tl-row">
-        <div class="tl-time">13:30</div>
-        <div class="tl-node"><div class="tl-dot solid"></div></div>
-        <div class="tl-card">
-          <div class="card-head">
-            <div class="card-title">🍜 午餐 · 樂天 Outlet</div>
-            <div class="card-tag">Lunch</div>
-          </div>
-          <div class="card-body">
-            <div class="card-line">롯데 아울렛 동부산점 3F</div>
-          </div>
-        </div>
-      </div>
-      <div class="tl-row">
-        <div class="tl-time">15:30</div>
-        <div class="tl-node"><div class="tl-dot"></div></div>
-        <div class="tl-transport">
-          <div class="tl-transport-line"></div>
-          <div class="tl-transport-label">🚕 Uber 約30min → 青沙浦</div>
-          <div class="tl-transport-line"></div>
-        </div>
-      </div>
-      <div class="tl-row">
-        <div class="tl-time">16:30</div>
-        <div class="tl-node"><div class="tl-dot solid"></div></div>
-        <div class="tl-card">
-          <div class="card-head">
-            <div class="card-title">📸 青沙浦海岸列車平交道</div>
-            <div class="card-tag">Photo Spot</div>
-          </div>
-          <div class="card-body">
-            <div class="card-line">出站往斜坡步行·復古列車+無敵海景</div>
-            <div class="card-kor">청사포 공영주차장 전기차충전소</div>
-          </div>
-          <div class="card-foot"><span>韓版鎌倉</span><span>청사포 青沙浦</span></div>
-        </div>
-      </div>
-      <div class="tl-row">
-        <div class="tl-time">18:00</div>
-        <div class="tl-node"><div class="tl-dot solid"></div></div>
-        <div class="tl-card">
-          <div class="card-head">
-            <div class="card-title">☕ 리베르타 청사포점</div>
-            <div class="card-tag">Café</div>
-          </div>
-          <div class="card-body">
-            <div class="card-line">海景咖啡廳·甜點也超人氣</div>
-            <div class="card-kor">청사포로 137 · 萇山站步行</div>
-          </div>
-          <div class="card-foot"><span>Coffee</span><span>청사포 青沙浦</span></div>
-        </div>
-      </div>
-      <div class="tl-row">
-        <div class="tl-time">20:00</div>
-        <div class="tl-node"><div class="tl-dot"></div></div>
-        <div class="tl-card">
-          <div class="card-head">
-            <div class="card-title">🍴 晚餐 or 回西面</div>
+            <div class="card-title">🥘 晚餐 · 西面 옛골</div>
             <div class="card-tag">Dinner</div>
           </div>
+          <div class="card-body">
+            <div class="card-line">청국장 · 西面傳統鍋物</div>
+            <div class="card-kor">부산 부산진구 중앙대로691번길 52</div>
+          </div>
+          <div class="card-foot"><span>Korean</span><span>서면 西面</span></div>
         </div>
       </div>
     </div>
   </div><!-- /day-1 -->
-
-  <!-- ─── DAY 3 ─── -->
+  <!-- DAY 3 -->
   <div class="day-content" id="day-2">
-    <div class="day-banner">
-      <div class="day-banner-num">03</div>
-      <div class="day-banner-info">
-        <div class="day-banner-date">2026 · July · 11th</div>
-        <div class="day-banner-name">Saturday</div>
-      </div>
-    </div>
+    <div class="day-banner"><div class="day-banner-num">03</div><div class="day-banner-info"><div class="day-banner-date">2026 · July · 11th</div><div class="day-banner-name">Saturday</div></div></div>
     <div class="timeline">
-      <div class="tl-row">
-        <div class="tl-time">10:00</div>
-        <div class="tl-node"><div class="tl-dot solid"></div></div>
-        <div class="tl-card">
-          <div class="card-head">
-            <div class="card-title">🥘 Hash Table 早午餐</div>
-            <div class="card-tag">Brunch</div>
-          </div>
-          <div class="card-body">
-            <div class="card-line">備選：DIART Coffee 土耳其蜂蜜奶油麵包</div>
-            <div class="card-kor">서전로 74 · 西面站8號出口 · 10:00~18:00</div>
-          </div>
-          <div class="card-foot"><span>Café</span><span>전포 田浦洞</span></div>
-        </div>
-      </div>
-      <div class="tl-row">
-        <div class="tl-time">12:00</div>
-        <div class="tl-node"><div class="tl-dot"></div></div>
-        <div class="tl-card">
-          <div class="card-head">
-            <div class="card-title">🛍️ 田浦洞選物店</div>
-            <div class="card-tag">Shopping</div>
-          </div>
-          <div class="card-body">
-            <div class="card-line">AVIVERE / BRACKET TABLE 選物店區域</div>
-          </div>
-        </div>
-      </div>
-      <div class="tl-row">
-        <div class="tl-time">13:00</div>
-        <div class="tl-node"><div class="tl-dot"></div></div>
-        <div class="tl-transport">
-          <div class="tl-transport-line"></div>
-          <div class="tl-transport-label">🚃 전포역 2號線 장산방면 → 못골역+步行12min</div>
-          <div class="tl-transport-line"></div>
-        </div>
-      </div>
-      <div class="tl-row">
-        <div class="tl-time">14:00</div>
-        <div class="tl-node"><div class="tl-dot solid"></div></div>
-        <div class="tl-card">
-          <div class="card-head">
-            <div class="card-title">☕ 智旻爸爸的咖啡店</div>
-            <div class="card-tag">Café</div>
-          </div>
-          <div class="card-body">
-            <div class="card-line">香蔥鹽麵包 · 鹽麵包 · 紫色地瓜麵包</div>
-            <div class="card-kor">진남로 135 · 못골역 4號出口 步行13min</div>
-          </div>
-        </div>
-      </div>
-      <div class="tl-row">
-        <div class="tl-time">16:30</div>
-        <div class="tl-node"><div class="tl-dot solid"></div></div>
-        <div class="tl-card">
-          <div class="card-head">
-            <div class="card-title">🏖️ 廣安里海灘</div>
-            <div class="card-tag">Beach</div>
-          </div>
-          <div class="card-body">
-            <div class="card-line">三號出口 · 散步 · 廣安大橋夜景</div>
-          </div>
-          <div class="card-foot"><span>Outdoor</span><span>광안리 廣安里</span></div>
-        </div>
-      </div>
-      <div class="tl-row">
-        <div class="tl-time">17:00</div>
-        <div class="tl-node"><div class="tl-dot"></div></div>
-        <div class="tl-card">
-          <div class="card-head">
-            <div class="card-title">🕯️ SCENTICA 廣安香氛店</div>
-            <div class="card-tag">Shop</div>
-          </div>
-          <div class="card-body">
-            <div class="card-line">香水·護髮·居家香氛全系列</div>
-            <div class="card-kor">廣安站 · 광안해변로</div>
-          </div>
-        </div>
-      </div>
-      <div class="tl-row">
-        <div class="tl-time">18:00</div>
-        <div class="tl-node"><div class="tl-dot solid"></div></div>
-        <div class="tl-card">
-          <div class="card-head">
-            <div class="card-title">🥯 All Sunday Bagel</div>
-            <div class="card-tag">Bakery</div>
-          </div>
-          <div class="card-body">
-            <div class="card-line">竹炭奶油口味招牌</div>
-            <div class="card-kor">광안로61번길 28 · 廣安站</div>
-          </div>
-        </div>
-      </div>
-      <div class="tl-row">
-        <div class="tl-time">19:00</div>
-        <div class="tl-node"><div class="tl-dot solid"></div></div>
-        <div class="tl-card">
-          <div class="card-head">
-            <div class="card-title">🥐 La Feuille 라푀유</div>
-            <div class="card-tag">Bakery</div>
-          </div>
-          <div class="card-body">
-            <div class="card-line">每日現烤招牌可頌 · 千層派</div>
-            <div class="card-kor">광안해변로 243-1 · 廣安站步行7min</div>
-          </div>
-          <div class="card-foot"><span>→</span><span>買可頌去海邊吃 · 找一年後明信片</span></div>
-        </div>
-      </div>
-      <div class="tl-row">
-        <div class="tl-time">20:00</div>
-        <div class="tl-node"><div class="tl-dot solid"></div></div>
-        <div class="tl-card">
-          <div class="card-head">
-            <div class="card-title">🌉 廣安里無人機燈光秀</div>
-            <div class="card-tag">Event</div>
-          </div>
-          <div class="card-body">
-            <div class="card-line">夏季場次：20:00 · 22:00（共兩場）</div>
-            <div class="card-kor">廣安里海灘 · 廣安大橋倒影</div>
-          </div>
-          <div class="card-foot"><span>Drone Show</span><span>광안리 廣安里</span></div>
-        </div>
-      </div>
-      <div class="tl-row">
-        <div class="tl-time">21:00</div>
-        <div class="tl-node"><div class="tl-dot"></div></div>
-        <div class="tl-card">
-          <div class="card-head">
-            <div class="card-title">🥘 晚餐 or 回西面</div>
-            <div class="card-tag">Dinner</div>
-          </div>
-        </div>
-      </div>
+      <div class="tl-row"><div class="tl-time">10:00</div><div class="tl-node"><div class="tl-dot solid"></div></div><div class="tl-card"><div class="card-head"><div class="card-title">🥘 Hash Table 早午餐</div><div class="card-tag">Brunch</div></div><div class="card-body"><div class="card-line">備選：DIART Coffee 土耳其蜂蜜奶油麵包</div><div class="card-kor">서전로 74 · 西面站8號出口 · 10:00~18:00</div></div><div class="card-foot"><span>Café</span><span>전포 田浦洞</span></div></div></div>
+      <div class="tl-row"><div class="tl-time">12:00</div><div class="tl-node"><div class="tl-dot"></div></div><div class="tl-card"><div class="card-head"><div class="card-title">🛍️ 田浦洞選物店</div><div class="card-tag">Shopping</div></div><div class="card-body"><div class="card-line">AVIVERE / BRACKET TABLE 選物店區域</div></div></div></div>
+      <div class="tl-row"><div class="tl-time">13:00</div><div class="tl-node"><div class="tl-dot"></div></div><div class="tl-transport"><div class="tl-transport-line"></div><div class="tl-transport-label">🚃 전포역 2號線 장산방면 → 못골역+步行12min</div><div class="tl-transport-line"></div></div></div>
+      <div class="tl-row"><div class="tl-time">14:00</div><div class="tl-node"><div class="tl-dot solid"></div></div><div class="tl-card"><div class="card-head"><div class="card-title">☕ 智旻爸爸的咖啡店</div><div class="card-tag">Café</div></div><div class="card-body"><div class="card-line">香蔥鹽麵包 · 鹽麵包 · 紫色地瓜麵包</div><div class="card-kor">진남로 135 · 못골역 4號出口 步行13min</div></div></div></div>
+      <div class="tl-row"><div class="tl-time">16:30</div><div class="tl-node"><div class="tl-dot solid"></div></div><div class="tl-card"><div class="card-head"><div class="card-title">🏖️ 廣安里海灘</div><div class="card-tag">Beach</div></div><div class="card-body"><div class="card-line">三號出口 · 散步 · 廣安大橋夜景</div></div><div class="card-foot"><span>Outdoor</span><span>광안리 廣安里</span></div></div></div>
+      <div class="tl-row"><div class="tl-time">17:00</div><div class="tl-node"><div class="tl-dot"></div></div><div class="tl-card"><div class="card-head"><div class="card-title">🕯️ SCENTICA 廣安香氛店</div><div class="card-tag">Shop</div></div><div class="card-body"><div class="card-line">香水·護髮·居家香氛全系列</div><div class="card-kor">廣安站 · 광안해변로</div></div></div></div>
+      <div class="tl-row"><div class="tl-time">18:00</div><div class="tl-node"><div class="tl-dot solid"></div></div><div class="tl-card"><div class="card-head"><div class="card-title">🥯 All Sunday Bagel</div><div class="card-tag">Bakery</div></div><div class="card-body"><div class="card-line">竹炭奶油口味招牌</div><div class="card-kor">광안로61번길 28 · 廣安站</div></div></div></div>
+      <div class="tl-row"><div class="tl-time">19:00</div><div class="tl-node"><div class="tl-dot solid"></div></div><div class="tl-card"><div class="card-head"><div class="card-title">🥐 La Feuille 라푀유</div><div class="card-tag">Bakery</div></div><div class="card-body"><div class="card-line">每日現烤招牌可頌 · 千層派</div><div class="card-kor">광안해변로 243-1 · 廣安站步行7min</div></div><div class="card-foot"><span>→</span><span>買可頌去海邊吃 · 找一年後明信片</span></div></div></div>
+      <div class="tl-row"><div class="tl-time">20:00</div><div class="tl-node"><div class="tl-dot solid"></div></div><div class="tl-card"><div class="card-head"><div class="card-title">🌉 廣安里無人機燈光秀</div><div class="card-tag">Event</div></div><div class="card-body"><div class="card-line">夏季場次：20:00 · 22:00（共兩場）</div><div class="card-kor">廣安里海灘 · 廣安大橋倒影</div></div><div class="card-foot"><span>Drone Show</span><span>광안리 廣安里</span></div></div></div>
+      <div class="tl-row"><div class="tl-time">21:00</div><div class="tl-node"><div class="tl-dot"></div></div><div class="tl-card"><div class="card-head"><div class="card-title">🥘 晚餐 or 回西面</div><div class="card-tag">Dinner</div></div></div></div>
     </div>
   </div><!-- /day-2 -->
-
-  <!-- ─── DAY 4 ─── -->
+  <!-- DAY 4 -->
   <div class="day-content" id="day-3">
-    <div class="day-banner">
-      <div class="day-banner-num">04</div>
-      <div class="day-banner-info">
-        <div class="day-banner-date">2026 · July · 12th</div>
-        <div class="day-banner-name">Sunday</div>
-      </div>
-    </div>
+    <div class="day-banner"><div class="day-banner-num">04</div><div class="day-banner-info"><div class="day-banner-date">2026 · July · 12th</div><div class="day-banner-name">Sunday</div></div></div>
     <div class="timeline">
-      <div class="tl-row">
-        <div class="tl-time">9:00</div>
-        <div class="tl-node"><div class="tl-dot solid"></div></div>
-        <div class="tl-card">
-          <div class="card-head">
-            <div class="card-title">🍙 早餐</div>
-            <div class="card-tag">Breakfast</div>
-          </div>
-        </div>
-      </div>
-      <div class="tl-row">
-        <div class="tl-time">10:30</div>
-        <div class="tl-node"><div class="tl-dot reserved"></div></div>
-        <div class="tl-card">
-          <div class="card-head">
-            <div class="card-title">💆 CELITA 美容</div>
-            <div class="card-tag reserved">✓ 已預約</div>
-          </div>
-          <div class="card-body">
-            <div class="card-line">已預約確認 · 美容護膚</div>
-            <div class="card-kor">셀리타 · 西面 서면</div>
-          </div>
-          <div class="card-foot"><span>Beauty</span><span>Reserved</span></div>
-        </div>
-      </div>
-      <div class="tl-row">
-        <div class="tl-time">13:30</div>
-        <div class="tl-node"><div class="tl-dot solid"></div></div>
-        <div class="tl-card">
-          <div class="card-head">
-            <div class="card-title">🍜 伽倻小麥麵</div>
-            <div class="card-tag">Lunch</div>
-          </div>
-          <div class="card-body">
-            <div class="card-line">Day6成員推薦 · 水拌/拌小麥冷麵 · 紫蘇刀削麵</div>
-            <div class="card-kor">가야밀면 서면점 · 서면로68번길 5 · 西面站7號出口</div>
-          </div>
-          <div class="card-foot"><span>Noodle</span><span>서면 西面</span></div>
-        </div>
-      </div>
-      <div class="tl-row">
-        <div class="tl-time">15:00</div>
-        <div class="tl-node"><div class="tl-dot"></div></div>
-        <div class="tl-transport">
-          <div class="tl-transport-line"></div>
-          <div class="tl-transport-label">🚃 地鐵45min → 海雲台 + 步行15min</div>
-          <div class="tl-transport-line"></div>
-        </div>
-      </div>
-      <div class="tl-row">
-        <div class="tl-time">15:30</div>
-        <div class="tl-node"><div class="tl-dot solid"></div></div>
-        <div class="tl-card">
-          <div class="card-head">
-            <div class="card-title">🎨 世界是我的畫布</div>
-            <div class="card-tag">Exhibition</div>
-          </div>
-          <div class="card-body">
-            <div class="card-line">The Whole World's a Canvas</div>
-            <div class="card-kor">釜山朝鮮飯店 Grand Josun Busan 4F · 10:00~19:00</div>
-          </div>
-          <div class="card-foot"><span>Art</span><span>해운대 海雲台站</span></div>
-        </div>
-      </div>
-      <div class="tl-row">
-        <div class="tl-time">17:30</div>
-        <div class="tl-node"><div class="tl-dot solid"></div></div>
-        <div class="tl-card">
-          <div class="card-head">
-            <div class="card-title">🍜 海雲台小麥麵</div>
-            <div class="card-tag">Dinner</div>
-          </div>
-          <div class="card-body">
-            <div class="card-line">鄭容和推薦釜山最好吃小麥麵 TOP3</div>
-            <div class="card-kor">해운대밀면 · 중동2로10번길 21 · 步行10min</div>
-          </div>
-          <div class="card-foot"><span>Noodle</span><span>해운대 海雲台</span></div>
-        </div>
-      </div>
-      <div class="tl-row">
-        <div class="tl-time">19:00</div>
-        <div class="tl-node"><div class="tl-dot"></div></div>
-        <div class="tl-card">
-          <div class="card-head">
-            <div class="card-title">☕ 海團理路咖啡街</div>
-            <div class="card-tag">Café Walk</div>
-          </div>
-          <div class="card-body">
-            <div class="card-line">해리단길 · 카페히토 ~21:00</div>
-            <div class="card-kor">多數店家19:00打烊 · 注意時間</div>
-          </div>
-        </div>
-      </div>
-      <div class="tl-row">
-        <div class="tl-time">19:30</div>
-        <div class="tl-node"><div class="tl-dot"></div></div>
-        <div class="tl-card">
-          <div class="card-head">
-            <div class="card-title">🎁 Keveren House 伴手禮</div>
-            <div class="card-tag">Souvenir</div>
-          </div>
-          <div class="card-body">
-            <div class="card-line">奶油蝴蝶酥 · 海洋記憶夾心餅乾</div>
-            <div class="card-kor">케버런 하우스 · 營業至 20:00</div>
-          </div>
-          <div class="card-foot"><span>⚠️</span><span>20:00 打烊 注意時間</span></div>
-        </div>
-      </div>
-      <div class="tl-row">
-        <div class="tl-time">20:30</div>
-        <div class="tl-node"><div class="tl-dot"></div></div>
-        <div class="tl-card">
-          <div class="card-head">
-            <div class="card-title">🛍️ 西面地下街 / Olive Young</div>
-            <div class="card-tag">Shopping</div>
-          </div>
-          <div class="card-body">
-            <div class="card-line">서면 지하상가 · 藥妝採購</div>
-          </div>
-        </div>
-      </div>
-      <div class="tl-row">
-        <div class="tl-time">22:00</div>
-        <div class="tl-node"><div class="tl-dot"></div></div>
-        <div class="tl-card">
-          <div class="card-head">
-            <div class="card-title">🏨 回飯店 · 整理行李</div>
-            <div class="card-tag">Check-out Prep</div>
-          </div>
-        </div>
-      </div>
+      <div class="tl-row"><div class="tl-time">9:00</div><div class="tl-node"><div class="tl-dot solid"></div></div><div class="tl-card"><div class="card-head"><div class="card-title">🍙 早餐</div><div class="card-tag">Breakfast</div></div></div></div>
+      <div class="tl-row"><div class="tl-time">10:30</div><div class="tl-node"><div class="tl-dot reserved"></div></div><div class="tl-card"><div class="card-head"><div class="card-title">💆 CELITA 美容</div><div class="card-tag reserved">✓ 已預約</div></div><div class="card-body"><div class="card-line">已預約確認 · 美容護膚</div><div class="card-kor">셀리타 · 西面 서면</div></div><div class="card-foot"><span>Beauty</span><span>Reserved</span></div></div></div>
+      <div class="tl-row"><div class="tl-time">13:30</div><div class="tl-node"><div class="tl-dot solid"></div></div><div class="tl-card"><div class="card-head"><div class="card-title">🍜 伽倻小麥麵</div><div class="card-tag">Lunch</div></div><div class="card-body"><div class="card-line">Day6成員推薦 · 水拌/拌小麥冷麵 · 紫蘇刀削麵</div><div class="card-kor">가야밀면 서면점 · 서면로68번길 5 · 西面站7號出口</div></div><div class="card-foot"><span>Noodle</span><span>서면 西面</span></div></div></div>
+      <div class="tl-row"><div class="tl-time">15:00</div><div class="tl-node"><div class="tl-dot"></div></div><div class="tl-transport"><div class="tl-transport-line"></div><div class="tl-transport-label">🚃 地鐵45min → 海雲台 + 步行15min</div><div class="tl-transport-line"></div></div></div>
+      <div class="tl-row"><div class="tl-time">15:30</div><div class="tl-node"><div class="tl-dot solid"></div></div><div class="tl-card"><div class="card-head"><div class="card-title">🎨 世界是我的畫布</div><div class="card-tag">Exhibition</div></div><div class="card-body"><div class="card-line">The Whole World's a Canvas</div><div class="card-kor">釜山朝鮮飯店 Grand Josun Busan 4F · 10:00~19:00</div></div><div class="card-foot"><span>Art</span><span>해운대 海雲台站</span></div></div></div>
+      <div class="tl-row"><div class="tl-time">17:30</div><div class="tl-node"><div class="tl-dot solid"></div></div><div class="tl-card"><div class="card-head"><div class="card-title">🍜 海雲台小麥麵</div><div class="card-tag">Dinner</div></div><div class="card-body"><div class="card-line">鄭容和推薦釜山最好吃小麥麵 TOP3</div><div class="card-kor">해운대밀면 · 중동2로10번길 21 · 步行10min</div></div><div class="card-foot"><span>Noodle</span><span>해운대 海雲台</span></div></div></div>
+      <div class="tl-row"><div class="tl-time">19:00</div><div class="tl-node"><div class="tl-dot"></div></div><div class="tl-card"><div class="card-head"><div class="card-title">☕ 海團理路咖啡街</div><div class="card-tag">Café Walk</div></div><div class="card-body"><div class="card-line">해리단길 · 카페히토 ~21:00</div><div class="card-kor">多數店家19:00打烊 · 注意時間</div></div></div></div>
+      <div class="tl-row"><div class="tl-time">19:30</div><div class="tl-node"><div class="tl-dot"></div></div><div class="tl-card"><div class="card-head"><div class="card-title">🎁 Keveren House 伴手禮</div><div class="card-tag">Souvenir</div></div><div class="card-body"><div class="card-line">奶油蝴蝶酥 · 海洋記憶夾心餅乾</div><div class="card-kor">케버런 하우스 · 營業至 20:00</div></div><div class="card-foot"><span>⚠️</span><span>20:00 打烊 注意時間</span></div></div></div>
+      <div class="tl-row"><div class="tl-time">20:30</div><div class="tl-node"><div class="tl-dot"></div></div><div class="tl-card"><div class="card-head"><div class="card-title">🛍️ 西面地下街 / Olive Young</div><div class="card-tag">Shopping</div></div><div class="card-body"><div class="card-line">서면 지하상가 · 藥妝採購</div></div></div></div>
+      <div class="tl-row"><div class="tl-time">22:00</div><div class="tl-node"><div class="tl-dot"></div></div><div class="tl-card"><div class="card-head"><div class="card-title">🏨 回飯店 · 整理行李</div><div class="card-tag">Check-out Prep</div></div></div></div>
     </div>
   </div><!-- /day-3 -->
-
-  <!-- ─── DAY 5 ─── -->
+  <!-- DAY 5 -->
   <div class="day-content" id="day-4">
-    <div class="day-banner">
-      <div class="day-banner-num">05</div>
-      <div class="day-banner-info">
-        <div class="day-banner-date">2026 · July · 13th</div>
-        <div class="day-banner-name">Monday</div>
-      </div>
-    </div>
+    <div class="day-banner"><div class="day-banner-num">05</div><div class="day-banner-info"><div class="day-banner-date">2026 · July · 13th</div><div class="day-banner-name">Monday</div></div></div>
     <div class="timeline">
-      <div class="tl-row">
-        <div class="tl-time">11:00</div>
-        <div class="tl-node"><div class="tl-dot flight"></div></div>
-        <div class="tl-card">
-          <div class="card-head">
-            <div class="card-title">All 搭飛機 · 返台 ✈️</div>
-            <div class="card-tag">Depart</div>
-          </div>
-          <div class="card-body">
-            <div class="card-line">全員出發，金海機場</div>
-          </div>
-        </div>
-      </div>
-      <div class="tl-row">
-        <div class="tl-time">12:30</div>
-        <div class="tl-node"><div class="tl-dot solid"></div></div>
-        <div class="tl-card">
-          <div class="card-head">
-            <div class="card-title">All 落地台灣 🏠</div>
-            <div class="card-tag">Home</div>
-          </div>
-          <div class="card-body">
-            <div class="card-line">THE SLIP IS RECYCLABLE.</div>
-            <div class="card-kor">BUT THE MEMORY ISN'T.</div>
-          </div>
-        </div>
-      </div>
+      <div class="tl-row"><div class="tl-time">11:00</div><div class="tl-node"><div class="tl-dot flight"></div></div><div class="tl-card"><div class="card-head"><div class="card-title">All 搭飛機 · 返台 ✈️</div><div class="card-tag">Depart</div></div><div class="card-body"><div class="card-line">全員出發，金海機場</div></div></div></div>
+      <div class="tl-row"><div class="tl-time">12:30</div><div class="tl-node"><div class="tl-dot solid"></div></div><div class="tl-card"><div class="card-head"><div class="card-title">All 落地台灣 🏠</div><div class="card-tag">Home</div></div><div class="card-body"><div class="card-line">THE SLIP IS RECYCLABLE.</div><div class="card-kor">BUT THE MEMORY ISN'T.</div></div></div></div>
     </div>
     <div class="tear">— NOT LOUD. JUST PRESENT. —</div>
   </div><!-- /day-4 -->
-
 </div><!-- /view-timeline -->
-
-<!-- ══════════════════════════════════
-     SPOTS LIST VIEW
-══════════════════════════════════ -->
+<!-- SPOTS VIEW -->
 <div class="view" id="view-spots">
-
-  <!-- ── Day 1 ── -->
   <div class="spots-day">
-    <div class="spots-day-label">
-      <span class="d-left">[ 07.09 ] 抵達日</span>
-      <span class="d-right">Thursday</span>
-    </div>
-    <div class="spot">
-      <div class="spot-id">[01]</div>
-      <div class="spot-head">
-        <div class="spot-cat">🍜 Restaurant</div>
-        <div class="spot-name">춘하추동밀면 서면본점</div>
-        <div class="spot-kor">春夏秋冬小麥冷麵 · 西面本店</div>
-      </div>
-      <div class="spot-body">
-        <div class="spot-row"><span class="spot-label">地址</span><span class="spot-val">부산 부산진구 서면문화로 48-1</span></div>
-        <div class="spot-row"><span class="spot-label">地鐵</span><span class="spot-val">西面站 9號出口</span></div>
-        <div class="spot-row"><span class="spot-label">類型</span><span class="spot-val">冷麵 · 西面站附近</span></div>
-      </div>
-      <div class="spot-time-row">
-        <span class="spot-time-label">建議時間</span>
-        <span class="spot-time-val">20:00</span>
-      </div>
-    </div>
+    <div class="spots-day-label"><span class="d-left">[ 07.09 ] 抵達日</span><span class="d-right">Thursday</span></div>
+    <div class="spot"><div class="spot-id">[01]</div><div class="spot-head"><div class="spot-cat">🍜 Restaurant</div><div class="spot-name">춘하추동밀면 서면본점</div><div class="spot-kor">春夏秋冬小麥冷麵 · 西面本店</div></div><div class="spot-body"><div class="spot-row"><span class="spot-label">地址</span><span class="spot-val">부산 부산진구 서면문화로 48-1</span></div><div class="spot-row"><span class="spot-label">地鐵</span><span class="spot-val">西面站 9號出口</span></div><div class="spot-row"><span class="spot-label">類型</span><span class="spot-val">冷麵 · 西面站附近</span></div></div><div class="spot-time-row"><span class="spot-time-label">建議時間</span><span class="spot-time-val">20:00</span></div></div>
   </div>
-
-  <!-- ── Day 2 ── -->
   <div class="spots-day">
-    <div class="spots-day-label">
-      <span class="d-left">[ 07.10 ] Skyline + 青沙浦</span>
-      <span class="d-right">Friday</span>
-    </div>
-
-    <div class="spot">
-      <div class="spot-id">[01]</div>
-      <div class="spot-head">
-        <div class="spot-cat">⛷️ Activity</div>
-        <div class="spot-name">Skyline Luge Busan</div>
-        <div class="spot-kor">스카이라인 루지 부산</div>
-      </div>
-      <div class="spot-body">
-        <div class="spot-row"><span class="spot-label">方案</span><span class="spot-val">루지 3회권 + 스카이라이드 · 36,000원/人</span></div>
-        <div class="spot-row"><span class="spot-label">地鐵</span><span class="spot-val">地鐵1號線 부산역 → 부전역換乘東海南部線 → 오시리아역</span></div>
-        <div class="spot-row"><span class="spot-label">時長</span><span class="spot-val">體驗2次約40-50min；含高空滑索需1.5-2hr</span></div>
-      </div>
-      <div class="spot-time-row">
-        <span class="spot-time-label">建議時間</span>
-        <span class="spot-time-val">11:00</span>
-      </div>
-    </div>
-
-    <div class="spot">
-      <div class="spot-id">[02]</div>
-      <div class="spot-head">
-        <div class="spot-cat">📸 Photo Spot</div>
-        <div class="spot-name">青沙浦海岸列車平交道</div>
-        <div class="spot-kor">청사포 해안열차 건널목</div>
-      </div>
-      <div class="spot-body">
-        <div class="spot-row"><span class="spot-label">打卡點</span><span class="spot-val">青沙浦站出站往斜坡方向步行一小段</span></div>
-        <div class="spot-row"><span class="spot-label">交通</span><span class="spot-val">地鐵2號線 → 萇山站5號出口 → 搭2/7/10號公車 → 青沙浦站</span></div>
-        <div class="spot-desc">復古塗裝的海岸列車緩緩駛過，背景是無敵蔚藍大海，完美復刻鎌倉場景。</div>
-      </div>
-      <div class="spot-time-row">
-        <span class="spot-time-label">建議時間</span>
-        <span class="spot-time-val">16:30</span>
-      </div>
-    </div>
-
-    <div class="spot">
-      <div class="spot-id">[03]</div>
-      <div class="spot-head">
-        <div class="spot-cat">☕ Café</div>
-        <div class="spot-name">리베르타 청사포점</div>
-        <div class="spot-kor">Liberta Coffee · 青沙浦店</div>
-      </div>
-      <div class="spot-body">
-        <div class="spot-row"><span class="spot-label">地址</span><span class="spot-val">부산 해운대구 청사포로 137 1~3층</span></div>
-        <div class="spot-row"><span class="spot-label">地鐵</span><span class="spot-val">萇山站 · 看完韓版鎌倉後造訪</span></div>
-        <div class="spot-desc">一邊享用咖啡與甜點，一邊欣賞蔚藍海景。甜點也相當受歡迎。</div>
-      </div>
-      <div class="spot-time-row">
-        <span class="spot-time-label">建議時間</span>
-        <span class="spot-time-val">18:00</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- ── Day 3 ── -->
-  <div class="spots-day">
-    <div class="spots-day-label">
-      <span class="d-left">[ 07.11 ] 田浦洞 + 廣安里</span>
-      <span class="d-right">Saturday</span>
-    </div>
-
-    <div class="spot">
-      <div class="spot-id">[01]</div>
-      <div class="spot-head">
-        <div class="spot-cat">🥘 Brunch</div>
-        <div class="spot-name">Hash Table</div>
-        <div class="spot-kor">해쉬테이블 · 備選：DIART COFFEE</div>
-      </div>
-      <div class="spot-body">
-        <div class="spot-row"><span class="spot-label">地址</span><span class="spot-val">부산 부산진구 서전로 74 1층</span></div>
-        <div class="spot-row"><span class="spot-label">地鐵</span><span class="spot-val">西面站8號出口</span></div>
-        <div class="spot-row"><span class="spot-label">營業</span><span class="spot-val">平日 10:00~18:00 / 週六日 09:00~17:00</span></div>
-        <div class="spot-desc">DIART COFFEE 備選：土耳其蜂蜜奶油麵包最有名，咖啡也超厲害。不開放訂位、不限時。<br><span class="kor">西面：동성로49번길 17 4층 · 10:00~20:00</span></div>
-      </div>
-      <div class="spot-time-row">
-        <span class="spot-time-label">建議時間</span>
-        <span class="spot-time-val">10:00</span>
-      </div>
-    </div>
-
-    <div class="spot">
-      <div class="spot-id">[02]</div>
-      <div class="spot-head">
-        <div class="spot-cat">☕ Café</div>
-        <div class="spot-name">智旻爸爸的咖啡店</div>
-        <div class="spot-kor">지민 아버지 카페 · 못골역 附近</div>
-      </div>
-      <div class="spot-body">
-        <div class="spot-row"><span class="spot-label">地址</span><span class="spot-val">부산 남구 진남로 135 B동 1층</span></div>
-        <div class="spot-row"><span class="spot-label">地鐵</span><span class="spot-val">못골역 4號出口 步行約13min</span></div>
-        <div class="spot-desc">推薦：香蔥鹽麵包、鹽麵包、紫色地瓜麵包<br>飲品：杏仁奶油拿鐵</div>
-      </div>
-      <div class="spot-time-row">
-        <span class="spot-time-label">建議時間</span>
-        <span class="spot-time-val">14:00</span>
-      </div>
-    </div>
-
-    <div class="spot">
-      <div class="spot-id">[03]</div>
-      <div class="spot-head">
-        <div class="spot-cat">🏖️ Beach + 🛍️ Shop</div>
-        <div class="spot-name">廣安里海灘 + SCENTICA</div>
-        <div class="spot-kor">광안리 해수욕장 · 廣安站3號出口</div>
-      </div>
-      <div class="spot-body">
-        <div class="spot-row"><span class="spot-label">地鐵</span><span class="spot-val">廣安站 광안역</span></div>
-        <div class="spot-row"><span class="spot-label">SCENTICA</span><span class="spot-val">香水·護髮·手部·居家香氛全系列</span></div>
-        <div class="spot-desc">廣安里 ADoR 也是香水調香工坊，約30min挑選百種基調，約40,000元起。</div>
-      </div>
-      <div class="spot-time-row">
-        <span class="spot-time-label">建議時間</span>
-        <span class="spot-time-val">16:30</span>
-      </div>
-    </div>
-
+    <div class="spots-day-label"><span class="d-left">[ 07.10 ] Skyline + 青沙浦</span><span class="d-right">Friday</span></div>
+    <div class="spot"><div class="spot-id">[01]</div><div class="spot-head"><div class="spot-cat">⛷️ Activity</div><div class="spot-name">Skyline Luge Busan</div><div class="spot-kor">스카이라인 루지 부산</div></div><div class="spot-body"><div class="spot-row"><span class="spot-label">方案</span><span class="spot-val">루지 3회권 + 스카이라이드 · 36,000원/人</span></div><div class="spot-row"><span class="spot-label">地鐵</span><span class="spot-val">地鐵1號線 부산역 → 부전역換乘東海南部線 → 오시리아역</span></div><div class="spot-row"><span class="spot-label">時長</span><span class="spot-val">體驗2次約40-50min；含高空滑索需1.5-2hr</span></div></div><div class="spot-time-row"><span class="spot-time-label">建議時間</span><span class="spot-time-val">11:00</span></div></div>
+    <div class="spot"><div class="spot-id">[02]</div><div class="spot-head"><div class="spot-cat">📸 Photo Spot</div><div class="spot-name">青沙浦海岸列車平交道</div><div class="spot-kor">청사포 해안열차 건널목</div></div><div class="spot-body"><div class="spot-row"><span class="spot-label">打卡點</span><span class="spot-val">青沙浦站出站往斜坡方向步行一小段</span></div><div class="spot-row"><span class="spot-label">交通</span><span class="spot-val">地鐵2號線 → 萇山站5號出口 → 搭2/7/10號公車 → 青沙浦站</span></div><div class="spot-desc">復古塗裝的海岸列車緩緩駛過，背景是無敵蔚藍大海，完美復刻鎌倉場景。</div></div><div class="spot-time-row"><span class="spot-time-label">建議時間</span><span class="spot-time-val">16:30</span></div></div>
+    <div class="spot"><div class="spot-id">[03]</div><div class="spot-head"><div class="spot-cat">☕ Café</div><div class="spot-name">리베르타 청사포점</div><div class="spot-kor">Liberta Coffee · 青沙浦店</div></div><div class="spot-body"><div class="spot-row"><span class="spot-label">地址</span><span class="spot-val">부산 해운대구 청사포로 137 1~3층</span></div><div class="spot-row"><span class="spot-label">地鐵</span><span class="spot-val">萇山站 · 看完韓版鎌倉後造訪</span></div><div class="spot-desc">一邊享用咖啡與甜點，一邊欣賞蔚藍海景。甜點也相當受歡迎。</div></div><div class="spot-time-row"><span class="spot-time-label">建議時間</span><span class="spot-time-val">18:00</span></div></div>
     <div class="spot">
       <div class="spot-id">[04]</div>
       <div class="spot-head">
-        <div class="spot-cat">🥯 Bakery</div>
-        <div class="spot-name">All Sunday Bagel + La Feuille</div>
-        <div class="spot-kor">올선데이베이글 · 라푀유 · 廣安里</div>
+        <div class="spot-cat">🥘 Restaurant</div>
+        <div class="spot-name">옛골 서면</div>
+        <div class="spot-kor">西面傳統鍋物</div>
       </div>
       <div class="spot-body">
-        <div class="spot-row"><span class="spot-label">Bagel</span><span class="spot-val">광안로61번길 28 · 廣安站</span></div>
-        <div class="spot-row"><span class="spot-label">Feuille</span><span class="spot-val">광안해변로 243-1 · 廣安站步行7min</span></div>
-        <div class="spot-desc">La Feuille：每日現烤、層次分明的招牌可頌與千層派。買了去海邊踩水邊吃，再找一年後明信片。</div>
+        <div class="spot-row"><span class="spot-label">地址</span><span class="spot-val">부산 부산진구 중앙대로691번길 52</span></div>
+        <div class="spot-row"><span class="spot-label">特色</span><span class="spot-val">청국장 · 韓式大醬鍋</span></div>
       </div>
-      <div class="spot-time-row">
-        <span class="spot-time-label">建議時間</span>
-        <span class="spot-time-val">18:00 — 19:00</span>
-      </div>
-    </div>
-
-    <div class="spot">
-      <div class="spot-id">[05]</div>
-      <div class="spot-head">
-        <div class="spot-cat">🌉 Event</div>
-        <div class="spot-name">廣安里無人機燈光秀</div>
-        <div class="spot-kor">광안리 드론쇼</div>
-      </div>
-      <div class="spot-body">
-        <div class="spot-row"><span class="spot-label">場次</span><span class="spot-val">夏季（3~9月）：20:00 · 22:00 共兩場</span></div>
-        <div class="spot-row"><span class="spot-label">地點</span><span class="spot-val">廣安里海灘 · 廣安大橋為背景</span></div>
-      </div>
-      <div class="spot-time-row">
-        <span class="spot-time-label">表演時間</span>
-        <span class="spot-time-val">20:00 / 22:00</span>
-      </div>
+      <div class="spot-time-row"><span class="spot-time-label">建議時間</span><span class="spot-time-val">20:30</span></div>
     </div>
   </div>
-
-  <!-- ── Day 4 ── -->
   <div class="spots-day">
-    <div class="spots-day-label">
-      <span class="d-left">[ 07.12 ] 西面 + 海雲台</span>
-      <span class="d-right">Sunday</span>
-    </div>
-
-    <div class="spot">
-      <div class="spot-id">[01]</div>
-      <div class="spot-head">
-        <div class="spot-cat">💆 Beauty <span class="badge">✓ 已預約</span></div>
-        <div class="spot-name">CELITA</div>
-        <div class="spot-kor">셀리타 · 西面</div>
-      </div>
-      <div class="spot-body">
-        <div class="spot-row"><span class="spot-label">狀態</span><span class="spot-val">已預約確認</span></div>
-        <div class="spot-row"><span class="spot-label">地區</span><span class="spot-val">서면 西面</span></div>
-      </div>
-      <div class="spot-time-row">
-        <span class="spot-time-label">預約時間</span>
-        <span class="spot-time-val">10:30</span>
-      </div>
-    </div>
-
-    <div class="spot">
-      <div class="spot-id">[02]</div>
-      <div class="spot-head">
-        <div class="spot-cat">🍜 Restaurant</div>
-        <div class="spot-name">伽倻小麥麵</div>
-        <div class="spot-kor">가야밀면 서면점</div>
-      </div>
-      <div class="spot-body">
-        <div class="spot-row"><span class="spot-label">地址</span><span class="spot-val">부산 부산진구 서면로68번길 5 1층</span></div>
-        <div class="spot-row"><span class="spot-label">地鐵</span><span class="spot-val">西面站 7號出口</span></div>
-        <div class="spot-desc">Day6成員推薦。<br>물밀면 水拌冷麵：清爽肉湯底適合夏天。<br>비빔밀면 拌冷麵：韓式甜辣醬拌勻。<br>들깨칼국수 紫蘇刀削麵：濃稠堅果香。</div>
-      </div>
-      <div class="spot-time-row">
-        <span class="spot-time-label">建議時間</span>
-        <span class="spot-time-val">13:30</span>
-      </div>
-    </div>
-
-    <div class="spot">
-      <div class="spot-id">[03]</div>
-      <div class="spot-head">
-        <div class="spot-cat">🎨 Exhibition</div>
-        <div class="spot-name">The Whole World's a Canvas</div>
-        <div class="spot-kor">世界是我的畫布</div>
-      </div>
-      <div class="spot-body">
-        <div class="spot-row"><span class="spot-label">地點</span><span class="spot-val">釜山朝鮮飯店 Grand Josun Busan 4F</span></div>
-        <div class="spot-row"><span class="spot-label">地鐵</span><span class="spot-val">海雲台站 해운대역</span></div>
-        <div class="spot-row"><span class="spot-label">購票</span><span class="spot-val">可於 Klook 預訂頁面購買</span></div>
-      </div>
-      <div class="spot-time-row">
-        <span class="spot-time-label">營業時間</span>
-        <span class="spot-time-val">10:00 — 19:00（最後入場18:00）</span>
-      </div>
-    </div>
-
-    <div class="spot">
-      <div class="spot-id">[04]</div>
-      <div class="spot-head">
-        <div class="spot-cat">🍜 Restaurant</div>
-        <div class="spot-name">海雲台小麥麵</div>
-        <div class="spot-kor">해운대밀면</div>
-      </div>
-      <div class="spot-body">
-        <div class="spot-row"><span class="spot-label">地址</span><span class="spot-val">부산 해운대구 중동2로10번길 21 1층</span></div>
-        <div class="spot-row"><span class="spot-label">地鐵</span><span class="spot-val">중동역 7號出口 步行約10min</span></div>
-        <div class="spot-desc">鄭容和說釜山最好吃的小麥麵 TOP3 之一。</div>
-      </div>
-      <div class="spot-time-row">
-        <span class="spot-time-label">建議時間</span>
-        <span class="spot-time-val">17:30</span>
-      </div>
-    </div>
-
-    <div class="spot">
-      <div class="spot-id">[05]</div>
-      <div class="spot-head">
-        <div class="spot-cat">☕ Café Street</div>
-        <div class="spot-name">海團理路咖啡街</div>
-        <div class="spot-kor">해리단길 카페거리</div>
-      </div>
-      <div class="spot-body">
-        <div class="spot-row"><span class="spot-label">地鐵</span><span class="spot-val">海雲台站 해운대역</span></div>
-        <div class="spot-row"><span class="spot-label">注意</span><span class="spot-val">多數店家19:00打烊 · 카페히토 ~21:00</span></div>
-      </div>
-      <div class="spot-time-row">
-        <span class="spot-time-label">建議時間</span>
-        <span class="spot-time-val">19:00</span>
-      </div>
-    </div>
-
-    <div class="spot">
-      <div class="spot-id">[06]</div>
-      <div class="spot-head">
-        <div class="spot-cat">🎁 Souvenir</div>
-        <div class="spot-name">Keveren House</div>
-        <div class="spot-kor">케버런 하우스</div>
-      </div>
-      <div class="spot-body">
-        <div class="spot-row"><span class="spot-label">地鐵</span><span class="spot-val">海雲台站 附近</span></div>
-        <div class="spot-desc">奶油蝴蝶酥：發酵奶油反覆摺疊，如蝴蝶展翅，撒上細緻糖粒。<br>海洋記憶夾心餅乾：釜山天然蜂蜜 × 鹹焦糖乳酪。</div>
-      </div>
-      <div class="spot-time-row">
-        <span class="spot-time-label">⚠️ 注意</span>
-        <span class="spot-time-val">營業至 20:00</span>
-      </div>
-    </div>
-
-  </div><!-- /spots-day 4 -->
-
+    <div class="spots-day-label"><span class="d-left">[ 07.11 ] 田浦洞 + 廣安里</span><span class="d-right">Saturday</span></div>
+    <div class="spot"><div class="spot-id">[01]</div><div class="spot-head"><div class="spot-cat">🥘 Brunch</div><div class="spot-name">Hash Table</div><div class="spot-kor">해쉬테이블 · 備選：DIART COFFEE</div></div><div class="spot-body"><div class="spot-row"><span class="spot-label">地址</span><span class="spot-val">부산 부산진구 서전로 74 1층</span></div><div class="spot-row"><span class="spot-label">地鐵</span><span class="spot-val">西面站8號出口</span></div><div class="spot-row"><span class="spot-label">營業</span><span class="spot-val">平日 10:00~18:00 / 週六日 09:00~17:00</span></div><div class="spot-desc">DIART COFFEE 備選：土耳其蜂蜜奶油麵包最有名，咖啡也超厲害。不開放訂位、不限時。<br><span class="kor">西面：동성로49번길 17 4층 · 10:00~20:00</span></div></div><div class="spot-time-row"><span class="spot-time-label">建議時間</span><span class="spot-time-val">10:00</span></div></div>
+    <div class="spot"><div class="spot-id">[02]</div><div class="spot-head"><div class="spot-cat">☕ Café</div><div class="spot-name">智旻爸爸的咖啡店</div><div class="spot-kor">지민 아버지 카페 · 못골역 附近</div></div><div class="spot-body"><div class="spot-row"><span class="spot-label">地址</span><span class="spot-val">부산 남구 진남로 135 B동 1층</span></div><div class="spot-row"><span class="spot-label">地鐵</span><span class="spot-val">못골역 4號出口 步行約13min</span></div><div class="spot-desc">推薦：香蔥鹽麵包、鹽麵包、紫色地瓜麵包<br>飲品：杏仁奶油拿鐵</div></div><div class="spot-time-row"><span class="spot-time-label">建議時間</span><span class="spot-time-val">14:00</span></div></div>
+    <div class="spot"><div class="spot-id">[03]</div><div class="spot-head"><div class="spot-cat">🏖️ Beach + 🛍️ Shop</div><div class="spot-name">廣安里海灘 + SCENTICA</div><div class="spot-kor">광안리 해수욕장 · 廣安站3號出口</div></div><div class="spot-body"><div class="spot-row"><span class="spot-label">地鐵</span><span class="spot-val">廣安站 광안역</span></div><div class="spot-row"><span class="spot-label">SCENTICA</span><span class="spot-val">香水·護髮·手部·居家香氛全系列</span></div><div class="spot-desc">廣安里 ADoR 也是香水調香工坊，約30min挑選百種基調，約40,000元起。</div></div><div class="spot-time-row"><span class="spot-time-label">建議時間</span><span class="spot-time-val">16:30</span></div></div>
+    <div class="spot"><div class="spot-id">[04]</div><div class="spot-head"><div class="spot-cat">🥯 Bakery</div><div class="spot-name">All Sunday Bagel + La Feuille</div><div class="spot-kor">올선데이베이글 · 라푀유 · 廣安里</div></div><div class="spot-body"><div class="spot-row"><span class="spot-label">Bagel</span><span class="spot-val">광안로61번길 28 · 廣安站</span></div><div class="spot-row"><span class="spot-label">Feuille</span><span class="spot-val">광안해변로 243-1 · 廣安站步行7min</span></div><div class="spot-desc">La Feuille：每日現烤、層次分明的招牌可頌與千層派。買了去海邊踩水邊吃，再找一年後明信片。</div></div><div class="spot-time-row"><span class="spot-time-label">建議時間</span><span class="spot-time-val">18:00 — 19:00</span></div></div>
+    <div class="spot"><div class="spot-id">[05]</div><div class="spot-head"><div class="spot-cat">🌉 Event</div><div class="spot-name">廣安里無人機燈光秀</div><div class="spot-kor">광안리 드론쇼</div></div><div class="spot-body"><div class="spot-row"><span class="spot-label">場次</span><span class="spot-val">夏季（3~9月）：20:00 · 22:00 共兩場</span></div><div class="spot-row"><span class="spot-label">地點</span><span class="spot-val">廣安里海灘 · 廣安大橋為背景</span></div></div><div class="spot-time-row"><span class="spot-time-label">表演時間</span><span class="spot-time-val">20:00 / 22:00</span></div></div>
+  </div>
+  <div class="spots-day">
+    <div class="spots-day-label"><span class="d-left">[ 07.12 ] 西面 + 海雲台</span><span class="d-right">Sunday</span></div>
+    <div class="spot"><div class="spot-id">[01]</div><div class="spot-head"><div class="spot-cat">💆 Beauty <span class="badge">✓ 已預約</span></div><div class="spot-name">CELITA</div><div class="spot-kor">셀리타 · 西面</div></div><div class="spot-body"><div class="spot-row"><span class="spot-label">狀態</span><span class="spot-val">已預約確認</span></div><div class="spot-row"><span class="spot-label">地區</span><span class="spot-val">서면 西面</span></div></div><div class="spot-time-row"><span class="spot-time-label">預約時間</span><span class="spot-time-val">10:30</span></div></div>
+    <div class="spot"><div class="spot-id">[02]</div><div class="spot-head"><div class="spot-cat">🍜 Restaurant</div><div class="spot-name">伽倻小麥麵</div><div class="spot-kor">가야밀면 서면점</div></div><div class="spot-body"><div class="spot-row"><span class="spot-label">地址</span><span class="spot-val">부산 부산진구 서면로68번길 5 1층</span></div><div class="spot-row"><span class="spot-label">地鐵</span><span class="spot-val">西面站 7號出口</span></div><div class="spot-desc">Day6成員推薦。<br>물밀면 水拌冷麵：清爽肉湯底適合夏天。<br>비빔밀면 拌冷麵：韓式甜辣醬拌勻。<br>들깨칼국수 紫蘇刀削麵：濃稠堅果香。</div></div><div class="spot-time-row"><span class="spot-time-label">建議時間</span><span class="spot-time-val">13:30</span></div></div>
+    <div class="spot"><div class="spot-id">[03]</div><div class="spot-head"><div class="spot-cat">🎨 Exhibition</div><div class="spot-name">The Whole World's a Canvas</div><div class="spot-kor">世界是我的畫布</div></div><div class="spot-body"><div class="spot-row"><span class="spot-label">地點</span><span class="spot-val">釜山朝鮮飯店 Grand Josun Busan 4F</span></div><div class="spot-row"><span class="spot-label">地鐵</span><span class="spot-val">海雲台站 해운대역</span></div><div class="spot-row"><span class="spot-label">購票</span><span class="spot-val">可於 Klook 預訂頁面購買</span></div></div><div class="spot-time-row"><span class="spot-time-label">營業時間</span><span class="spot-time-val">10:00 — 19:00（最後入場18:00）</span></div></div>
+    <div class="spot"><div class="spot-id">[04]</div><div class="spot-head"><div class="spot-cat">🍜 Restaurant</div><div class="spot-name">海雲台小麥麵</div><div class="spot-kor">해운대밀면</div></div><div class="spot-body"><div class="spot-row"><span class="spot-label">地址</span><span class="spot-val">부산 해운대구 중동2로10번길 21 1층</span></div><div class="spot-row"><span class="spot-label">地鐵</span><span class="spot-val">중동역 7號出口 步行約10min</span></div><div class="spot-desc">鄭容和說釜山最好吃的小麥麵 TOP3 之一。</div></div><div class="spot-time-row"><span class="spot-time-label">建議時間</span><span class="spot-time-val">17:30</span></div></div>
+    <div class="spot"><div class="spot-id">[05]</div><div class="spot-head"><div class="spot-cat">☕ Café Street</div><div class="spot-name">海團理路咖啡街</div><div class="spot-kor">해리단길 카페거리</div></div><div class="spot-body"><div class="spot-row"><span class="spot-label">地鐵</span><span class="spot-val">海雲台站 해운대역</span></div><div class="spot-row"><span class="spot-label">注意</span><span class="spot-val">多數店家19:00打烊 · 카페히토 ~21:00</span></div></div><div class="spot-time-row"><span class="spot-time-label">建議時間</span><span class="spot-time-val">19:00</span></div></div>
+    <div class="spot"><div class="spot-id">[06]</div><div class="spot-head"><div class="spot-cat">🎁 Souvenir</div><div class="spot-name">Keveren House</div><div class="spot-kor">케버런 하우스</div></div><div class="spot-body"><div class="spot-row"><span class="spot-label">地鐵</span><span class="spot-val">海雲台站 附近</span></div><div class="spot-desc">奶油蝴蝶酥：發酵奶油反覆摺疊，如蝴蝶展翅，撒上細緻糖粒。<br>海洋記憶夾心餅乾：釜山天然蜂蜜 × 鹹焦糖乳酪。</div></div><div class="spot-time-row"><span class="spot-time-label">⚠️ 注意</span><span class="spot-time-val">營業至 20:00</span></div></div>
+  </div>
   <div class="tear">— NOT LOUD. JUST PRESENT. —</div>
-
 </div><!-- /view-spots -->
-
-  <!-- Paper overlay: absolute (not fixed) → covers full page, scrolls with content -->
   <div class="paper-overlay"></div>
 </div><!-- /app -->
-
 <script>
 function switchView(view, btn) {
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
@@ -1447,13 +281,11 @@ function switchView(view, btn) {
   btn.classList.add('active');
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
-
 function switchDay(idx, btn) {
   document.querySelectorAll('.day-tab').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.day-content').forEach(d => d.classList.remove('active'));
   btn.classList.add('active');
   document.getElementById('day-' + idx).classList.add('active');
-  // Scroll to just below the sticky nav
   const wrap = document.querySelector('.day-tabs-wrap');
   window.scrollTo({ top: wrap.offsetTop - 36, behavior: 'smooth' });
 }
