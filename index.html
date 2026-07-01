@@ -26,14 +26,21 @@
 
 * { margin:0; padding:0; box-sizing:border-box; }
 
+/*
+  KEY (from Erik Ritter's technique):
+  body { position: relative } → lets .paper-overlay use position:absolute
+  to cover the FULL page height, not just the viewport.
+  mix-blend-mode: multiply → texture blends INTO the content like real print.
+*/
 body {
   background: #111;
   min-height: 100vh;
   font-family: 'Courier Prime', 'Courier New', monospace;
   color: var(--ink);
-  position: relative;
+  position: relative; /* ← CRITICAL: makes abs overlay cover full page */
 }
 
+/* ── App shell ── */
 .app {
   max-width: 430px;
   margin: 0 auto;
@@ -43,12 +50,22 @@ body {
   overflow-x: hidden;
 }
 
+/*
+  ── PAPER OVERLAY (full-page grain) ──
+  position: absolute (not fixed!) → scrolls WITH the content,
+  so the texture lives ON the paper, not floating above the screen.
+  Two grain layers: coarse warm grain + fine tight grain.
+  mix-blend-mode: multiply → dark specks of grain darken the paper below,
+  white areas pass through = authentic aged-paper print effect.
+*/
 .paper-overlay {
   position: absolute;
   inset: 0;
   z-index: 500;
-  pointer-events: none;
+  pointer-events: none; /* clicks pass through to page content */
   mix-blend-mode: multiply;
+  /* Layer 1: coarse warm grain (300×300, warm-tinted) */
+  /* Layer 2: fine tight grain (180×180, cooler, subtle) */
   background-image:
     url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='c'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.60' numOctaves='4' seed='8' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncR type='linear' slope='0.22' intercept='0.80'/%3E%3CfeFuncG type='linear' slope='0.18' intercept='0.78'/%3E%3CfeFuncB type='linear' slope='0.13' intercept='0.73'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23c)'/%3E%3C/svg%3E"),
     url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.92' numOctaves='3' seed='14' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncR type='linear' slope='0.10' intercept='0.90'/%3E%3CfeFuncG type='linear' slope='0.09' intercept='0.89'/%3E%3CfeFuncB type='linear' slope='0.08' intercept='0.88'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23f)'/%3E%3C/svg%3E");
@@ -57,7 +74,9 @@ body {
 }
 
 /* ── HEADER ── */
-.header { padding: 28px 20px 0; }
+.header {
+  padding: 28px 20px 0;
+}
 .header-eyebrow {
   font-family: 'Special Elite', serif;
   font-size: 10px;
@@ -82,7 +101,11 @@ body {
   margin-top: 4px;
   margin-bottom: 16px;
 }
-.header-divider { border: none; border-top: 1px solid var(--ink); margin-bottom: 0; }
+.header-divider {
+  border: none;
+  border-top: 1px solid var(--ink);
+  margin-bottom: 0;
+}
 .header-meta {
   display: flex;
   justify-content: space-between;
@@ -104,7 +127,7 @@ body {
   background: var(--paper);
   position: sticky;
   top: 0;
-  z-index: 80;
+  z-index: 80; /* paper-overlay (z-index:500) paints above, grain covers nav = printed-on-paper look */
 }
 .nav-btn {
   flex: 1;
@@ -121,12 +144,18 @@ body {
   margin-bottom: -1px;
   transition: color 0.15s, border-color 0.15s;
 }
-.nav-btn.active { color: var(--ink); border-bottom-color: var(--ink); }
+.nav-btn.active {
+  color: var(--ink);
+  border-bottom-color: var(--ink);
+}
 
+/* ── VIEWS ── */
 .view { display: none; }
 .view.active { display: block; }
 
-/* ═══ TIMELINE VIEW ═══ */
+/* ═══════════════════════════════
+   TIMELINE VIEW
+═══════════════════════════════ */
 .day-tabs-wrap {
   padding: 14px 20px 0;
   background: var(--paper);
@@ -164,9 +193,11 @@ body {
   z-index: 1;
   position: relative;
 }
+
 .day-content { display: none; }
 .day-content.active { display: block; }
 
+/* Day banner */
 .day-banner {
   display: flex;
   justify-content: space-between;
@@ -174,6 +205,7 @@ body {
   background: var(--ink);
   color: var(--paper);
   padding: 14px 20px 12px;
+  margin-bottom: 0;
 }
 .day-banner-num {
   font-family: 'Special Elite', serif;
@@ -197,6 +229,12 @@ body {
   text-transform: uppercase;
 }
 
+/* ── TIMELINE ── */
+/*
+  Structure per row:
+  [tl-time: 44px] [gap: 8px] [tl-node: 14px] [gap: 8px] [tl-card: flex-1]
+  Vertical line left = tl-pad-l(20) + tl-time-w(44) + tl-gap(8) + tl-node-w/2(7) = 79px
+*/
 .timeline {
   position: relative;
   padding: 18px var(--tl-pad-l) 28px;
@@ -208,14 +246,23 @@ body {
   top: 26px;
   bottom: 36px;
   width: 1px;
-  background: linear-gradient(to bottom, transparent 0%, var(--ink-ghost) 6%, var(--ink-ghost) 94%, transparent 100%);
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    var(--ink-ghost) 6%,
+    var(--ink-ghost) 94%,
+    transparent 100%
+  );
 }
+
 .tl-row {
   display: flex;
   align-items: flex-start;
   margin-bottom: 6px;
   position: relative;
 }
+
+/* Time label */
 .tl-time {
   width: var(--tl-time-w);
   flex-shrink: 0;
@@ -227,6 +274,8 @@ body {
   line-height: 1;
   letter-spacing: 0.04em;
 }
+
+/* Dot column — centered on the line */
 .tl-node {
   width: var(--tl-node-w);
   flex-shrink: 0;
@@ -249,6 +298,7 @@ body {
 .tl-dot.flight { background: var(--red); border-color: var(--red); }
 .tl-dot.reserved { background: var(--ink); border-color: var(--ink); }
 
+/* Receipt card */
 .tl-card {
   flex: 1;
   border: 1px solid var(--ink);
@@ -256,11 +306,16 @@ body {
   position: relative;
   margin-bottom: 8px;
 }
+/* Perforated top edge */
 .tl-card::before {
   content: '';
   position: absolute;
   top: -4px; left: 6px; right: 6px; height: 4px;
-  background: repeating-linear-gradient(90deg, var(--paper) 0, var(--paper) 5px, transparent 5px, transparent 7px);
+  background: repeating-linear-gradient(
+    90deg,
+    var(--paper) 0, var(--paper) 5px,
+    transparent 5px, transparent 7px
+  );
 }
 .card-head {
   padding: 8px 10px 7px;
@@ -291,8 +346,14 @@ body {
   flex-shrink: 0;
   border: 1px solid var(--ink-ghost);
 }
-.card-tag.reserved { background: var(--ink); color: var(--paper); border-color: var(--ink); }
-.card-body { padding: 6px 10px 9px; }
+.card-tag.reserved {
+  background: var(--ink);
+  color: var(--paper);
+  border-color: var(--ink);
+}
+.card-body {
+  padding: 6px 10px 9px;
+}
 .card-line {
   font-size: 9.5px;
   letter-spacing: 0.06em;
@@ -316,6 +377,8 @@ body {
   text-transform: uppercase;
   color: var(--ink-ghost);
 }
+
+/* Transport row */
 .tl-transport {
   flex: 1;
   display: flex;
@@ -326,7 +389,11 @@ body {
 .tl-transport-line {
   flex: 1;
   height: 1px;
-  background: repeating-linear-gradient(90deg, var(--ink-ghost) 0, var(--ink-ghost) 4px, transparent 4px, transparent 7px);
+  background: repeating-linear-gradient(
+    90deg,
+    var(--ink-ghost) 0, var(--ink-ghost) 4px,
+    transparent 4px, transparent 7px
+  );
 }
 .tl-transport-label {
   font-family: 'Special Elite', serif;
@@ -337,8 +404,13 @@ body {
   white-space: nowrap;
 }
 
-/* ═══ SPOTS LIST VIEW ═══ */
-.spots-day { padding: 0 20px 4px; margin-top: 20px; }
+/* ═══════════════════════════════
+   SPOTS LIST VIEW
+═══════════════════════════════ */
+.spots-day {
+  padding: 0 20px 4px;
+  margin-top: 20px;
+}
 .spots-day-label {
   display: flex;
   justify-content: space-between;
@@ -360,6 +432,8 @@ body {
   text-transform: uppercase;
   color: var(--ink-ghost);
 }
+
+/* Spot card */
 .spot {
   border: 1px solid var(--ink);
   margin-bottom: 8px;
@@ -367,11 +441,16 @@ body {
   position: relative;
   overflow: hidden;
 }
+/* Torn bottom edge */
 .spot::after {
   content: '';
   position: absolute;
   bottom: 0; left: 0; right: 0; height: 3px;
-  background: repeating-linear-gradient(90deg, var(--paper-mid) 0, var(--paper-mid) 5px, transparent 5px, transparent 8px);
+  background: repeating-linear-gradient(
+    90deg,
+    var(--paper-mid) 0, var(--paper-mid) 5px,
+    transparent 5px, transparent 8px
+  );
 }
 .spot-id {
   position: absolute;
@@ -396,7 +475,12 @@ body {
   align-items: center;
   gap: 5px;
 }
-.spot-cat .badge { background: var(--ink); color: var(--paper); padding: 1px 5px; font-size: 7.5px; }
+.spot-cat .badge {
+  background: var(--ink);
+  color: var(--paper);
+  padding: 1px 5px;
+  font-size: 7.5px;
+}
 .spot-name {
   font-family: 'Special Elite', serif;
   font-size: 14px;
@@ -404,9 +488,21 @@ body {
   line-height: 1.3;
   color: var(--ink);
 }
-.spot-kor { font-size: 10px; color: var(--ink-faint); margin-top: 3px; letter-spacing: 0.04em; }
-.spot-body { padding: 9px 12px 14px; }
-.spot-row { display: flex; gap: 6px; margin-bottom: 5px; align-items: baseline; }
+.spot-kor {
+  font-size: 10px;
+  color: var(--ink-faint);
+  margin-top: 3px;
+  letter-spacing: 0.04em;
+}
+.spot-body {
+  padding: 9px 12px 14px;
+}
+.spot-row {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 5px;
+  align-items: baseline;
+}
 .spot-label {
   font-family: 'Special Elite', serif;
   font-size: 7.5px;
@@ -416,8 +512,17 @@ body {
   flex-shrink: 0;
   width: 40px;
 }
-.spot-val { font-size: 9.5px; color: var(--ink-light); letter-spacing: 0.04em; line-height: 1.6; flex: 1; }
-.spot-val .kor { color: var(--ink-faint); font-size: 9px; }
+.spot-val {
+  font-size: 9.5px;
+  color: var(--ink-light);
+  letter-spacing: 0.04em;
+  line-height: 1.6;
+  flex: 1;
+}
+.spot-val .kor {
+  color: var(--ink-faint);
+  font-size: 9px;
+}
 .spot-desc {
   margin-top: 6px;
   padding-top: 6px;
@@ -447,6 +552,8 @@ body {
   color: var(--ink-light);
   letter-spacing: 0.08em;
 }
+
+/* ── Footer tear ── */
 .tear {
   text-align: center;
   padding: 20px 20px 40px;
@@ -463,6 +570,7 @@ body {
 <body>
 <div class="app">
 
+<!-- ── HEADER ── -->
 <header class="header">
   <div class="header-eyebrow">[ TRAVEL RECEIPT · 釜山行程 ]</div>
   <div class="header-title">BUSAN®</div>
@@ -475,11 +583,15 @@ body {
   </div>
 </header>
 
+<!-- ── NAV ── -->
 <nav class="nav">
   <button class="nav-btn active" onclick="switchView('timeline',this)">時程表</button>
   <button class="nav-btn" onclick="switchView('spots',this)">景點清單</button>
 </nav>
 
+<!-- ══════════════════════════════════
+     TIMELINE VIEW
+══════════════════════════════════ -->
 <div class="view active" id="view-timeline">
   <div class="day-tabs-wrap">
     <div class="day-tabs">
@@ -491,7 +603,7 @@ body {
     </div>
   </div>
 
-  <!-- DAY 1 -->
+  <!-- ─── DAY 1 ─── -->
   <div class="day-content active" id="day-0">
     <div class="day-banner">
       <div class="day-banner-num">01</div>
@@ -568,9 +680,9 @@ body {
         </div>
       </div>
     </div>
-  </div>
+  </div><!-- /day-0 -->
 
-  <!-- DAY 2 -->
+  <!-- ─── DAY 2 ─── -->
   <div class="day-content" id="day-1">
     <div class="day-banner">
       <div class="day-banner-num">02</div>
@@ -669,26 +781,25 @@ body {
           <div class="card-foot"><span>Coffee</span><span>청사포 青沙浦</span></div>
         </div>
       </div>
-      <!-- UPDATED: 晚餐確定在 옛골 (청국장) -->
       <div class="tl-row">
         <div class="tl-time">20:00</div>
         <div class="tl-node"><div class="tl-dot solid"></div></div>
         <div class="tl-card">
           <div class="card-head">
-            <div class="card-title">🥘 晚餐 · 옛골</div>
+            <div class="card-title">🥘 晚餐 · 西面 옛골</div>
             <div class="card-tag">Dinner</div>
           </div>
           <div class="card-body">
-            <div class="card-line">청국장 · 西面</div>
-            <div class="card-kor">부산 부산진구 중앙대로691번길 52</div>
+            <div class="card-line">傳統家常料理 · 청국장</div>
+            <div class="card-kor">중앙대로691번길 52 · 距離飯店步行7分鐘 · 16:00~06:00</div>
           </div>
-          <div class="card-foot"><span>Korean</span><span>서면 西面</span></div>
+          <div class="card-foot"><span>Stew</span><span>서면 西面</span></div>
         </div>
       </div>
     </div>
-  </div>
+  </div><!-- /day-1 -->
 
-  <!-- DAY 3 -->
+  <!-- ─── DAY 3 ─── -->
   <div class="day-content" id="day-2">
     <div class="day-banner">
       <div class="day-banner-num">03</div>
@@ -832,9 +943,9 @@ body {
         </div>
       </div>
     </div>
-  </div>
+  </div><!-- /day-2 -->
 
-  <!-- DAY 4 -->
+  <!-- ─── DAY 4 ─── -->
   <div class="day-content" id="day-3">
     <div class="day-banner">
       <div class="day-banner-num">04</div>
@@ -849,7 +960,7 @@ body {
         <div class="tl-node"><div class="tl-dot solid"></div></div>
         <div class="tl-card">
           <div class="card-head">
-            <div class="card-title">🥯 早餐 飯店吃貝果可頌</div>
+            <div class="card-title">🍙 早餐</div>
             <div class="card-tag">Breakfast</div>
           </div>
         </div>
@@ -976,9 +1087,9 @@ body {
         </div>
       </div>
     </div>
-  </div>
+  </div><!-- /day-3 -->
 
-  <!-- DAY 5 -->
+  <!-- ─── DAY 5 ─── -->
   <div class="day-content" id="day-4">
     <div class="day-banner">
       <div class="day-banner-num">05</div>
@@ -1017,13 +1128,16 @@ body {
       </div>
     </div>
     <div class="tear">— NOT LOUD. JUST PRESENT. —</div>
-  </div>
+  </div><!-- /day-4 -->
 
 </div><!-- /view-timeline -->
 
+<!-- ══════════════════════════════════
+     SPOTS LIST VIEW
+══════════════════════════════════ -->
 <div class="view" id="view-spots">
 
-  <!-- Day 1 -->
+  <!-- ── Day 1 ── -->
   <div class="spots-day">
     <div class="spots-day-label">
       <span class="d-left">[ 07.09 ] 抵達日</span>
@@ -1048,12 +1162,13 @@ body {
     </div>
   </div>
 
-  <!-- Day 2 -->
+  <!-- ── Day 2 ── -->
   <div class="spots-day">
     <div class="spots-day-label">
       <span class="d-left">[ 07.10 ] Skyline + 青沙浦</span>
       <span class="d-right">Friday</span>
     </div>
+
     <div class="spot">
       <div class="spot-id">[01]</div>
       <div class="spot-head">
@@ -1071,6 +1186,7 @@ body {
         <span class="spot-time-val">11:00</span>
       </div>
     </div>
+
     <div class="spot">
       <div class="spot-id">[02]</div>
       <div class="spot-head">
@@ -1088,6 +1204,7 @@ body {
         <span class="spot-time-val">16:30</span>
       </div>
     </div>
+
     <div class="spot">
       <div class="spot-id">[03]</div>
       <div class="spot-head">
@@ -1105,32 +1222,15 @@ body {
         <span class="spot-time-val">18:00</span>
       </div>
     </div>
-    <!-- UPDATED: 新增 옛골 晚餐景點 -->
-    <div class="spot">
-      <div class="spot-id">[04]</div>
-      <div class="spot-head">
-        <div class="spot-cat">🥘 Restaurant</div>
-        <div class="spot-name">옛골</div>
-        <div class="spot-kor">西面 · 청국장</div>
-      </div>
-      <div class="spot-body">
-        <div class="spot-row"><span class="spot-label">地址</span><span class="spot-val">부산 부산진구 중앙대로691번길 52</span></div>
-        <div class="spot-row"><span class="spot-label">地鐵</span><span class="spot-val">서면 西面站</span></div>
-        <div class="spot-row"><span class="spot-label">招牌</span><span class="spot-val">청국장（發酵大豆醬鍋）</span></div>
-      </div>
-      <div class="spot-time-row">
-        <span class="spot-time-label">建議時間</span>
-        <span class="spot-time-val">20:00</span>
-      </div>
-    </div>
   </div>
 
-  <!-- Day 3 -->
+  <!-- ── Day 3 ── -->
   <div class="spots-day">
     <div class="spots-day-label">
       <span class="d-left">[ 07.11 ] 田浦洞 + 廣安里</span>
       <span class="d-right">Saturday</span>
     </div>
+
     <div class="spot">
       <div class="spot-id">[01]</div>
       <div class="spot-head">
@@ -1149,6 +1249,7 @@ body {
         <span class="spot-time-val">10:00</span>
       </div>
     </div>
+
     <div class="spot">
       <div class="spot-id">[02]</div>
       <div class="spot-head">
@@ -1166,6 +1267,7 @@ body {
         <span class="spot-time-val">14:00</span>
       </div>
     </div>
+
     <div class="spot">
       <div class="spot-id">[03]</div>
       <div class="spot-head">
@@ -1183,6 +1285,7 @@ body {
         <span class="spot-time-val">16:30</span>
       </div>
     </div>
+
     <div class="spot">
       <div class="spot-id">[04]</div>
       <div class="spot-head">
@@ -1200,6 +1303,7 @@ body {
         <span class="spot-time-val">18:00 — 19:00</span>
       </div>
     </div>
+
     <div class="spot">
       <div class="spot-id">[05]</div>
       <div class="spot-head">
@@ -1218,12 +1322,13 @@ body {
     </div>
   </div>
 
-  <!-- Day 4 -->
+  <!-- ── Day 4 ── -->
   <div class="spots-day">
     <div class="spots-day-label">
       <span class="d-left">[ 07.12 ] 西面 + 海雲台</span>
       <span class="d-right">Sunday</span>
     </div>
+
     <div class="spot">
       <div class="spot-id">[01]</div>
       <div class="spot-head">
@@ -1240,6 +1345,7 @@ body {
         <span class="spot-time-val">10:30</span>
       </div>
     </div>
+
     <div class="spot">
       <div class="spot-id">[02]</div>
       <div class="spot-head">
@@ -1257,6 +1363,7 @@ body {
         <span class="spot-time-val">13:30</span>
       </div>
     </div>
+
     <div class="spot">
       <div class="spot-id">[03]</div>
       <div class="spot-head">
@@ -1274,6 +1381,7 @@ body {
         <span class="spot-time-val">10:00 — 19:00（最後入場18:00）</span>
       </div>
     </div>
+
     <div class="spot">
       <div class="spot-id">[04]</div>
       <div class="spot-head">
@@ -1291,6 +1399,7 @@ body {
         <span class="spot-time-val">17:30</span>
       </div>
     </div>
+
     <div class="spot">
       <div class="spot-id">[05]</div>
       <div class="spot-head">
@@ -1307,6 +1416,7 @@ body {
         <span class="spot-time-val">19:00</span>
       </div>
     </div>
+
     <div class="spot">
       <div class="spot-id">[06]</div>
       <div class="spot-head">
@@ -1323,12 +1433,14 @@ body {
         <span class="spot-time-val">營業至 20:00</span>
       </div>
     </div>
-  </div>
+
+  </div><!-- /spots-day 4 -->
 
   <div class="tear">— NOT LOUD. JUST PRESENT. —</div>
 
 </div><!-- /view-spots -->
 
+  <!-- Paper overlay: absolute (not fixed) → covers full page, scrolls with content -->
   <div class="paper-overlay"></div>
 </div><!-- /app -->
 
@@ -1346,6 +1458,7 @@ function switchDay(idx, btn) {
   document.querySelectorAll('.day-content').forEach(d => d.classList.remove('active'));
   btn.classList.add('active');
   document.getElementById('day-' + idx).classList.add('active');
+  // Scroll to just below the sticky nav
   const wrap = document.querySelector('.day-tabs-wrap');
   window.scrollTo({ top: wrap.offsetTop - 36, behavior: 'smooth' });
 }
